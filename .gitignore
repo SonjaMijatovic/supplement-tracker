@@ -4,6 +4,9 @@
 .AppleDouble
 .LSOverride
 
+# Kotlin compiler metadata
+.kotlin/
+
 # Gradle
 .gradle/
 build/
