@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Supplement Tracker — UX Design Directions</title>
+<style>
+  :root {
+    /* Dusty Indigo palette */
+    --indigo-50:  #f0f0f8;
+    --indigo-100: #ddddf0;
+    --indigo-200: #b8b8e0;
+    --indigo-300: #9090cc;
+    --indigo-400: #6e6eb8;
+    --indigo-500: #5050a0;   /* primary accent */
+    --indigo-600: #404090;
+    --indigo-700: #303080;
+    --indigo-800: #202070;
+    --indigo-900: #101060;
+
+    /* Warm neutrals */
+    --surface:        #faf9f7;
+    --surface-dim:    #f2f0ed;
+    --surface-card:   #ffffff;
+    --on-surface:     #1c1b1f;
+    --on-surface-var: #49454f;
+    --outline:        #cac4d0;
+    --outline-var:    #e7e0ec;
+
+    /* Semantic */
+    --logged-bg:     rgba(80, 80, 160, 0.10);
+    --logged-icon:   #5050a0;
+    --pending-bg:    #ffffff;
+    --not-logged:    #9e9e9e;
+    --amber:         #b08030;
+
+    /* Dark mode */
+    --dark-surface:   #1c1b2a;
+    --dark-surface-2: #262538;
+    --dark-card:      #302e44;
+    --dark-on-surface:#e6e1e5;
+    --dark-outline:   #49454f;
+    --dark-logged-bg: rgba(140, 140, 220, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #12121a;
+    color: #e0e0e0;
+    padding: 24px 16px 64px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    letter-spacing: -0.3px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 40px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .direction {
+    background: #1e1e2e;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid #333;
+  }
+
+  .direction-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid #333;
+  }
+  .direction-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: #7070c0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .direction-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .direction-desc {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  .phone-frame {
+    margin: 16px auto;
+    width: 280px;
+    background: var(--surface);
+    border-radius: 36px;
+    overflow: hidden;
+    border: 6px solid #2a2a3e;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  .phone-frame.dark-mode {
+    background: var(--dark-surface);
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 28px;
+    background: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+  .status-bar span { font-size: 11px; font-weight: 600; }
+  .status-bar .time { color: var(--on-surface); }
+  .status-bar.dark .time { color: var(--dark-on-surface); }
+  .status-icons { display: flex; gap: 4px; align-items: center; }
+  .status-icons span { font-size: 10px; color: var(--on-surface-var); }
+  .status-icons.dark span { color: #aaa; }
+
+  /* App bar */
+  .app-bar {
+    padding: 12px 20px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-bar-title { font-size: 22px; font-weight: 700; color: var(--on-surface); }
+  .app-bar-title.dark { color: var(--dark-on-surface); }
+  .app-bar-sub { font-size: 12px; color: var(--on-surface-var); margin-top: 1px; }
+  .app-bar-sub.dark { color: #aaa; }
+  .icon-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .icon-btn.dark { background: var(--dark-card); }
+
+  /* Item rows */
+  .item-list { padding: 0 12px 12px; }
+  .item-list.grouped { padding: 0; }
+
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 6px;
+    background: var(--pending-bg);
+    border: 1px solid var(--outline-var);
+    min-height: 64px;
+  }
+  .item-row.logged {
+    background: var(--logged-bg);
+    border-color: transparent;
+  }
+  .item-row.dark { background: var(--dark-card); border-color: var(--dark-outline); }
+  .item-row.logged.dark { background: var(--dark-logged-bg); border-color: transparent; }
+
+  .item-thumb {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--indigo-100);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    overflow: hidden;
+  }
+  .item-thumb.dark { background: #3a3850; }
+  .item-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-size: 14px; font-weight: 600; color: var(--on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-name.dark { color: var(--dark-on-surface); }
+  .item-name.logged { color: var(--on-surface-var); }
+  .item-name.logged.dark { color: #aaa; }
+  .item-time { font-size: 11px; color: var(--on-surface-var); margin-top: 1px; }
+  .item-time.dark { color: #888; }
+
+  .check-circle {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--outline);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .check-circle.done {
+    background: var(--indigo-500);
+    border-color: var(--indigo-500);
+    color: #fff;
+  }
+  .check-circle.dark { border-color: var(--dark-outline); }
+
+  /* All-done banner */
+  .all-done-banner {
+    margin: 8px 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--logged-bg);
+    border: 1px solid var(--indigo-200);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .all-done-banner.dark {
+    background: var(--dark-logged-bg);
+    border-color: rgba(140,140,220,0.3);
+  }
+  .all-done-icon { font-size: 24px; }
+  .all-done-text { flex: 1; }
+  .all-done-title { font-size: 14px; font-weight: 700; color: var(--indigo-600); }
+  .all-done-title.dark { color: #a0a0e0; }
+  .all-done-sub { font-size: 11px; color: var(--on-surface-var); margin-top: 1px; }
+  .all-done-sub.dark { color: #888; }
+
+  /* Yesterday banner */
+  .yesterday-banner {
+    margin: 4px 12px 8px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(176, 128, 48, 0.08);
+    border: 1px solid rgba(176, 128, 48, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .yesterday-banner span { color: var(--amber); }
+  .yesterday-banner .ytext { color: var(--on-surface-var); flex: 1; }
+  .yesterday-banner .ytext.dark { color: #aaa; }
+
+  /* Section header */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--on-surface-var);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 10px 20px 4px;
+  }
+  .section-label.dark { color: #888; }
+
+  /* Notification denied banner */
+  .notif-banner {
+    margin: 6px 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--surface-dim);
+    border: 1px solid var(--outline);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+  .notif-banner.dark { background: var(--dark-card); border-color: var(--dark-outline); }
+  .notif-banner .nb-icon { font-size: 14px; }
+  .notif-banner .nb-text { flex: 1; color: var(--on-surface-var); line-height: 1.3; }
+  .notif-banner .nb-text.dark { color: #aaa; }
+  .notif-banner .nb-action { font-size: 11px; font-weight: 600; color: var(--indigo-500); white-space: nowrap; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    display: flex;
+    padding: 8px 0 12px;
+    border-top: 1px solid var(--outline-var);
+    background: var(--surface);
+  }
+  .bottom-nav.dark { background: var(--dark-surface); border-color: var(--dark-outline); }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    color: var(--on-surface-var);
+  }
+  .nav-item.active { color: var(--indigo-500); }
+  .nav-item.dark { color: #888; }
+  .nav-item.active.dark { color: #a0a0e0; }
+  .nav-icon { font-size: 20px; }
+  .nav-pill {
+    background: var(--indigo-100);
+    border-radius: 50px;
+    padding: 4px 16px;
+    margin-bottom: 1px;
+  }
+  .nav-pill.dark { background: rgba(80,80,160,0.2); }
+
+  /* FAB */
+  .fab {
+    position: absolute;
+    bottom: 68px;
+    right: 16px;
+    width: 48px; height: 48px;
+    border-radius: 16px;
+    background: var(--indigo-500);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(80,80,160,0.4);
+  }
+
+  /* Card style item (Direction 2) */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 12px 12px; }
+  .item-card {
+    background: var(--surface-card);
+    border: 1px solid var(--outline-var);
+    border-radius: 18px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-height: 90px;
+    position: relative;
+  }
+  .item-card.logged { background: var(--logged-bg); border-color: transparent; }
+  .item-card.dark { background: var(--dark-card); border-color: var(--dark-outline); }
+  .item-card.logged.dark { background: var(--dark-logged-bg); border-color: transparent; }
+  .card-thumb {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: var(--indigo-100);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .card-thumb.dark { background: #3a3850; }
+  .card-name { font-size: 11px; font-weight: 600; color: var(--on-surface); text-align: center; line-height: 1.2; }
+  .card-name.dark { color: var(--dark-on-surface); }
+  .card-name.logged { color: var(--on-surface-var); }
+  .card-check {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--outline);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+  }
+  .card-check.done { background: var(--indigo-500); border-color: var(--indigo-500); color: #fff; }
+  .card-check.dark { border-color: var(--dark-outline); }
+
+  /* Grouped time style (Direction 3) */
+  .time-group { margin-bottom: 4px; }
+  .time-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px 4px;
+  }
+  .time-label { font-size: 13px; font-weight: 700; color: var(--on-surface); }
+  .time-label.dark { color: var(--dark-on-surface); }
+  .time-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--indigo-100);
+    color: var(--indigo-600);
+    font-weight: 600;
+  }
+  .time-badge.dark { background: rgba(80,80,160,0.2); color: #a0a0e0; }
+  .time-badge.done-badge { background: rgba(80,80,160,0.15); color: var(--indigo-500); }
+  .group-items { padding: 0 12px; }
+
+  /* Compact dense (Direction 5) */
+  .item-row-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    border-radius: 12px;
+    margin-bottom: 4px;
+    background: var(--pending-bg);
+    border: 1px solid var(--outline-var);
+    min-height: 50px;
+  }
+  .item-row-compact.logged { background: var(--logged-bg); border-color: transparent; }
+  .item-row-compact.dark { background: var(--dark-card); border-color: var(--dark-outline); }
+  .item-row-compact.logged.dark { background: var(--dark-logged-bg); border-color: transparent; }
+  .thumb-sm {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: var(--indigo-100);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .thumb-sm.dark { background: #3a3850; }
+  .check-sm {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--outline);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .check-sm.done { background: var(--indigo-500); border-color: var(--indigo-500); color: #fff; }
+  .check-sm.dark { border-color: var(--dark-outline); }
+
+  /* Big all-done state (Direction 6) */
+  .all-done-hero {
+    padding: 24px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .all-done-emoji { font-size: 52px; margin-bottom: 4px; }
+  .all-done-h { font-size: 20px; font-weight: 700; color: var(--indigo-600); text-align: center; }
+  .all-done-h.dark { color: #a0a0e0; }
+  .all-done-p { font-size: 12px; color: var(--on-surface-var); text-align: center; line-height: 1.4; }
+  .all-done-p.dark { color: #888; }
+  .done-items-mini { width: 100%; padding: 0 12px; margin-top: 8px; }
+
+  /* History row (shown in Dir 4) */
+  .history-dots { display: flex; gap: 4px; margin-top: 2px; }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--indigo-500);
+  }
+  .dot.empty { background: var(--outline); }
+  .dot.late { background: var(--indigo-300); }
+  .dot.none { background: var(--outline-var); }
+  .dot.dark-empty { background: var(--dark-outline); }
+
+  /* Comparison note */
+  .note {
+    padding: 0 20px 20px;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .note strong { color: #999; }
+</style>
+</head>
+<body>
+
+<h1>Daily Supplement Tracker</h1>
+<p class="subtitle">UX Design Directions — Dusty Indigo palette · Material 3 foundation · 6 explorations</p>
+
+<div class="grid">
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 1 — Clean List (Light)
+       Simple full-width rows, generous spacing
+  ════════════════════════════════════════════ -->
+  <div class="direction">
+    <div class="direction-header">
+      <div class="direction-num">Direction 1</div>
+      <div class="direction-title">Clean List — Light Mode</div>
+      <div class="direction-desc">Full-width rows, generous spacing. Partial day: 2 logged, 3 pending. Yesterday banner visible.</div>
+    </div>
+    <div class="phone-frame" style="margin-bottom:16px;">
+      <div class="status-bar"><span class="time">9:14</span><div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div></div>
+      <div class="app-bar">
+        <div>
+          <div class="app-bar-title">Today</div>
+          <div class="app-bar-sub">Friday · Apr 3</div>
+        </div>
+        <div class="icon-btn">⊕</div>
+      </div>
+      <div class="yesterday-banner">
+        <span>⚠</span>
+        <div class="ytext">2 items unlogged yesterday</div>
+        <span style="font-size:11px;font-weight:600;color:#b08030;">Log →</span>
+      </div>
+      <div class="item-list">
+        <div class="item-row logged">
+          <div class="item-thumb">💊</div>
+          <div class="item-info">
+            <div class="item-name logged">Vitamin D3</div>
+            <div class="item-time">8:00 AM · logged</div>
+          </div>
+          <div class="check-circle done">✓</div>
+        </div>
+        <div class="item-row logged">
+          <div class="item-thumb">🫐</div>
+          <div class="item-info">
+            <div class="item-name logged">Omega-3</div>
+            <div class="item-time">8:00 AM · logged</div>
+          </div>
+          <div class="check-circle done">✓</div>
+        </div>
+        <div class="item-row">
+          <div class="item-thumb">🌿</div>
+          <div class="item-info">
+            <div class="item-name">Magnesium</div>
+            <div class="item-time">8:00 AM · pending</div>
+          </div>
+          <div class="check-circle"></div>
+        </div>
+        <div class="item-row">
+          <div class="item-thumb">🍃</div>
+          <div class="item-info">
+            <div class="item-name">Ashwagandha</div>
+            <div class="item-time">9:00 PM · later</div>
+          </div>
+          <div class="check-circle"></div>
+        </div>
+        <div class="item-row">
+          <div class="item-thumb">💙</div>
+          <div class="item-info">
+            <div class="item-name">Medication</div>
+            <div class="item-time">10:00 PM · later</div>
+          </div>
+          <div class="check-circle"></div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-pill"><span class="nav-icon">☀</span></div>
+          <span>Today</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📅</span>
+          <span>History</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">⊞</span>
+          <span>Items</span>
+        </div>
+      </div>
+    </div>
+    <p class="note"><strong>Best for:</strong> Scannable at a glance. Familiar list pattern. Yesterday banner is contextual and non-intrusive. Logged items remain visible with muted text.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 2 — Card Grid
+       2-column grid of item cards
+  ════════════════════════════════════════════ -->
+  <div class="direction">
+    <div class="direction-header">
+      <div class="direction-num">Direction 2</div>
+      <div class="direction-title">Card Grid — Light Mode</div>
+      <div class="direction-desc">2-column card layout. Images prominent. Good for photo-heavy use. All-done state shown.</div>
+    </div>
+    <div class="phone-frame" style="margin-bottom:16px;">
+      <div class="status-bar"><span class="time">10:45</span><div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div></div>
+      <div class="app-bar">
+        <div>
+          <div class="app-bar-title">Today</div>
+          <div class="app-bar-sub">Friday · Apr 3</div>
+        </div>
+        <div class="icon-btn">⊕</div>
+      </div>
+      <div class="all-done-banner">
+        <div class="all-done-icon">✨</div>
+        <div class="all-done-text">
+          <div class="all-done-title">All done for today</div>
+          <div class="all-done-sub">6 of 6 items logged</div>
+        </div>
+      </div>
+      <div class="card-grid">
+        <div class="item-card logged">
+          <div class="card-check done">✓</div>
+          <div class="card-thumb">💊</div>
+          <div class="card-name logged">Vitamin D3</div>
+        </div>
+        <div class="item-card logged">
+          <div class="card-check done">✓</div>
+          <div class="card-thumb">🫐</div>
+          <div class="card-name logged">Omega-3</div>
+        </div>
+        <div class="item-card logged">
+          <div class="card-check done">✓</div>
+          <div class="card-thumb">🌿</div>
+          <div class="card-name logged">Magnesium</div>
+        </div>
+        <div class="item-card logged">
+          <div class="card-check done">✓</div>
+          <div class="card-thumb">🧬</div>
+          <div class="card-name logged">Zinc</div>
+        </div>
+        <div class="item-card logged">
+          <div class="card-check done">✓</div>
+          <div class="card-thumb">🍃</div>
+          <div class="card-name logged">Ashwagandha</div>
+        </div>
+        <div class="item-card logged">
+          <div class="card-check done">✓</div>
+          <div class="card-thumb">💙</div>
+          <div class="card-name logged">Medication</div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-pill"><span class="nav-icon">☀</span></div>
+          <span>Today</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📅</span>
+          <span>History</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">⊞</span>
+          <span>Items</span>
+        </div>
+      </div>
+    </div>
+    <p class="note"><strong>Best for:</strong> Photo-heavy use — images are the star. All-done state feels complete and satisfying. Trade-off: names truncate with longer supplement names; less scannable than list.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 3 — Grouped by Time Slot
+       Items grouped under their reminder time
+  ════════════════════════════════════════════ -->
+  <div class="direction">
+    <div class="direction-header">
+      <div class="direction-num">Direction 3</div>
+      <div class="direction-title">Grouped by Time — Light Mode</div>
+      <div class="direction-desc">Items organised under their reminder time. Morning group done; evening pending.</div>
+    </div>
+    <div class="phone-frame" style="margin-bottom:16px;">
+      <div class="status-bar"><span class="time">2:30 PM</span><div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div></div>
+      <div class="app-bar">
+        <div>
+          <div class="app-bar-title">Today</div>
+          <div class="app-bar-sub">Friday · Apr 3</div>
+        </div>
+        <div class="icon-btn">⊕</div>
+      </div>
+      <!-- Morning group -->
+      <div class="time-group">
+        <div class="time-header">
+          <div class="time-label">8:00 AM</div>
+          <div class="time-badge done-badge">3 of 3 done</div>
+        </div>
+        <div class="group-items">
+          <div class="item-row logged" style="margin-bottom:5px;">
+            <div class="item-thumb" style="width:34px;height:34px;font-size:16px;">💊</div>
+            <div class="item-info"><div class="item-name logged" style="font-size:13px;">Vitamin D3</div></div>
+            <div class="check-circle done" style="width:24px;height:24px;font-size:12px;">✓</div>
+          </div>
+          <div class="item-row logged" style="margin-bottom:5px;">
+            <div class="item-thumb" style="width:34px;height:34px;font-size:16px;">🫐</div>
+            <div class="item-info"><div class="item-name logged" style="font-size:13px;">Omega-3</div></div>
+            <div class="check-circle done" style="width:24px;height:24px;font-size:12px;">✓</div>
+          </div>
+          <div class="item-row logged" style="margin-bottom:5px;">
+            <div class="item-thumb" style="width:34px;height:34px;font-size:16px;">🌿</div>
+            <div class="item-info"><div class="item-name logged" style="font-size:13px;">Magnesium</div></div>
+            <div class="check-circle done" style="width:24px;height:24px;font-size:12px;">✓</div>
+          </div>
+        </div>
+      </div>
+      <!-- Evening group -->
+      <div class="time-group">
+        <div class="time-header">
+          <div class="time-label">9:00 PM</div>
+          <div class="time-badge">1 pending</div>
+        </div>
+        <div class="group-items">
+          <div class="item-row" style="margin-bottom:5px;">
+            <div class="item-thumb" style="width:34px;height:34px;font-size:16px;">🍃</div>
+            <div class="item-info"><div class="item-name" style="font-size:13px;">Ashwagandha</div></div>
+            <div class="check-circle" style="width:24px;height:24px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="time-group">
+        <div class="time-header">
+          <div class="time-label">10:00 PM</div>
+          <div class="time-badge">1 pending</div>
+        </div>
+        <div class="group-items">
+          <div class="item-row" style="margin-bottom:5px;">
+            <div class="item-thumb" style="width:34px;height:34px;font-size:16px;">💙</div>
+            <div class="item-info"><div class="item-name" style="font-size:13px;">Medication</div></div>
+            <div class="check-circle" style="width:24px;height:24px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-pill"><span class="nav-icon">☀</span></div>
+          <span>Today</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📅</span>
+          <span>History</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">⊞</span>
+          <span>Items</span>
+        </div>
+      </div>
+    </div>
+    <p class="note"><strong>Best for:</strong> Users who think in terms of "morning routine" vs "evening routine." Time context is always visible. Mirrors notification grouping. More visual structure; slightly more complex to scan.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 4 — Rich List with Mini History (Dark)
+       Larger rows + 7-day dot strip per item
+  ════════════════════════════════════════════ -->
+  <div class="direction">
+    <div class="direction-header">
+      <div class="direction-num">Direction 4</div>
+      <div class="direction-title">Rich List + Mini History — Dark Mode</div>
+      <div class="direction-desc">History dots below each item name. Contextual — shows habit momentum without navigating away. ⚠ Adds complexity to main screen.</div>
+    </div>
+    <div class="phone-frame dark-mode" style="margin-bottom:16px;">
+      <div class="status-bar dark"><span class="time" style="color:#e0e0e0;">9:14</span><div class="status-icons dark"><span>●●●</span><span>WiFi</span><span>🔋</span></div></div>
+      <div class="app-bar">
+        <div>
+          <div class="app-bar-title dark" style="color:#e6e1e5;">Today</div>
+          <div class="app-bar-sub dark">Friday · Apr 3</div>
+        </div>
+        <div class="icon-btn dark">⊕</div>
+      </div>
+      <div class="item-list">
+        <div class="item-row dark logged">
+          <div class="item-thumb dark">💊</div>
+          <div class="item-info">
+            <div class="item-name dark logged">Vitamin D3</div>
+            <div class="history-dots">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot empty" style="background:#444;"></div>
+              <div class="dot" style="background:#7070c0;opacity:0.6;"></div>
+            </div>
+          </div>
+          <div class="check-circle done">✓</div>
+        </div>
+        <div class="item-row dark logged">
+          <div class="item-thumb dark">🫐</div>
+          <div class="item-info">
+            <div class="item-name dark logged">Omega-3</div>
+            <div class="history-dots">
+              <div class="dot"></div><div class="dot"></div><div class="dot empty" style="background:#444;"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot" style="background:#7070c0;opacity:0.6;"></div>
+            </div>
+          </div>
+          <div class="check-circle done">✓</div>
+        </div>
+        <div class="item-row dark">
+          <div class="item-thumb dark">🌿</div>
+          <div class="item-info">
+            <div class="item-name dark">Magnesium</div>
+            <div class="history-dots">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot empty" style="background:#444;"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot" style="background:#7070c0;opacity:0.4;"></div>
+            </div>
+          </div>
+          <div class="check-circle dark"></div>
+        </div>
+        <div class="item-row dark">
+          <div class="item-thumb dark">🍃</div>
+          <div class="item-info">
+            <div class="item-name dark">Ashwagandha</div>
+            <div class="history-dots">
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              <div class="dot" style="background:#7070c0;opacity:0.4;"></div>
+            </div>
+          </div>
+          <div class="check-circle dark"></div>
+        </div>
+      </div>
+      <div class="bottom-nav dark">
+        <div class="nav-item active dark" style="color:#a0a0e0;">
+          <div class="nav-pill dark"><span class="nav-icon">☀</span></div>
+          <span>Today</span>
+        </div>
+        <div class="nav-item dark">
+          <span class="nav-icon">📅</span>
+          <span>History</span>
+        </div>
+        <div class="nav-item dark">
+          <span class="nav-icon">⊞</span>
+          <span>Items</span>
+        </div>
+      </div>
+    </div>
+    <p class="note"><strong>Best for:</strong> Users who want habit momentum visible at a glance. Dots = 7-day history, last dot = today (faded). ⚠ Adds visual complexity; risks "broken chain" anxiety if days are empty. Deferred per Occam's Razor analysis — included here for comparison.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 5 — Compact Dense (Dark)
+       Tighter rows, more items on screen
+  ════════════════════════════════════════════ -->
+  <div class="direction">
+    <div class="direction-header">
+      <div class="direction-num">Direction 5</div>
+      <div class="direction-title">Compact Dense — Dark Mode</div>
+      <div class="direction-desc">Smaller rows, more items visible. Notification-denied banner shown. Good for users with many items.</div>
+    </div>
+    <div class="phone-frame dark-mode" style="margin-bottom:16px;">
+      <div class="status-bar dark"><span class="time" style="color:#e0e0e0;">9:14</span><div class="status-icons dark"><span>●●●</span></div></div>
+      <div class="app-bar">
+        <div>
+          <div class="app-bar-title dark" style="color:#e6e1e5;">Today</div>
+          <div class="app-bar-sub dark">Friday · Apr 3</div>
+        </div>
+        <div class="icon-btn dark">⊕</div>
+      </div>
+      <div class="notif-banner dark">
+        <span class="nb-icon">🔔</span>
+        <div class="nb-text dark">Enable reminders to get notified</div>
+        <div class="nb-action">Enable</div>
+      </div>
+      <div class="item-list">
+        <div class="item-row-compact dark logged">
+          <div class="thumb-sm dark">💊</div>
+          <div class="item-info">
+            <div class="item-name dark logged" style="font-size:13px;">Vitamin D3</div>
+            <div class="item-time dark">8:00 AM</div>
+          </div>
+          <div class="check-sm done">✓</div>
+        </div>
+        <div class="item-row-compact dark logged">
+          <div class="thumb-sm dark">🫐</div>
+          <div class="item-info">
+            <div class="item-name dark logged" style="font-size:13px;">Omega-3</div>
+            <div class="item-time dark">8:00 AM</div>
+          </div>
+          <div class="check-sm done">✓</div>
+        </div>
+        <div class="item-row-compact dark">
+          <div class="thumb-sm dark">🌿</div>
+          <div class="item-info">
+            <div class="item-name dark" style="font-size:13px;">Magnesium</div>
+            <div class="item-time dark">8:00 AM</div>
+          </div>
+          <div class="check-sm dark"></div>
+        </div>
+        <div class="item-row-compact dark">
+          <div class="thumb-sm dark">🧬</div>
+          <div class="item-info">
+            <div class="item-name dark" style="font-size:13px;">Zinc</div>
+            <div class="item-time dark">8:00 AM</div>
+          </div>
+          <div class="check-sm dark"></div>
+        </div>
+        <div class="item-row-compact dark">
+          <div class="thumb-sm dark">🍃</div>
+          <div class="item-info">
+            <div class="item-name dark" style="font-size:13px;">Ashwagandha</div>
+            <div class="item-time dark">9:00 PM</div>
+          </div>
+          <div class="check-sm dark"></div>
+        </div>
+        <div class="item-row-compact dark">
+          <div class="thumb-sm dark">💙</div>
+          <div class="item-info">
+            <div class="item-name dark" style="font-size:13px;">Medication</div>
+            <div class="item-time dark">10:00 PM</div>
+          </div>
+          <div class="check-sm dark"></div>
+        </div>
+      </div>
+      <div class="bottom-nav dark">
+        <div class="nav-item active dark" style="color:#a0a0e0;">
+          <div class="nav-pill dark"><span class="nav-icon">☀</span></div>
+          <span>Today</span>
+        </div>
+        <div class="nav-item dark"><span class="nav-icon">📅</span><span>History</span></div>
+        <div class="nav-item dark"><span class="nav-icon">⊞</span><span>Items</span></div>
+      </div>
+    </div>
+    <p class="note"><strong>Best for:</strong> Users with 8+ items, or who prefer information density. Notification-denied banner is subtle and dismissible. Touch target is still 48dp minimum. Trade-off: less visual breathing room; "all done" moment has less impact.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DIRECTION 6 — All-Done Hero State
+       Optimised for the completion moment
+  ════════════════════════════════════════════ -->
+  <div class="direction">
+    <div class="direction-header">
+      <div class="direction-num">Direction 6</div>
+      <div class="direction-title">All-Done Hero — Dark Mode</div>
+      <div class="direction-desc">Completion state as the primary emotional moment. Items shown in mini-list below the hero message.</div>
+    </div>
+    <div class="phone-frame dark-mode" style="margin-bottom:16px;">
+      <div class="status-bar dark"><span class="time" style="color:#e0e0e0;">10:47 PM</span><div class="status-icons dark"><span>●●●</span></div></div>
+      <div class="app-bar">
+        <div>
+          <div class="app-bar-title dark" style="color:#e6e1e5;">Today</div>
+          <div class="app-bar-sub dark">Friday · Apr 3</div>
+        </div>
+        <div class="icon-btn dark">⊕</div>
+      </div>
+      <div class="all-done-hero">
+        <div class="all-done-emoji">✨</div>
+        <div class="all-done-h dark">All done today</div>
+        <div class="all-done-p dark">You logged all 6 items.<br>See you tomorrow.</div>
+      </div>
+      <div class="done-items-mini">
+        <div class="item-row-compact dark logged">
+          <div class="thumb-sm dark">💊</div>
+          <div class="item-info"><div class="item-name dark logged" style="font-size:12px;">Vitamin D3</div></div>
+          <div class="check-sm done">✓</div>
+        </div>
+        <div class="item-row-compact dark logged">
+          <div class="thumb-sm dark">🫐</div>
+          <div class="item-info"><div class="item-name dark logged" style="font-size:12px;">Omega-3</div></div>
+          <div class="check-sm done">✓</div>
+        </div>
+        <div class="item-row-compact dark logged">
+          <div class="thumb-sm dark">🌿</div>
+          <div class="item-info"><div class="item-name dark logged" style="font-size:12px;">Magnesium</div></div>
+          <div class="check-sm done">✓</div>
+        </div>
+        <div class="item-row-compact dark logged">
+          <div class="thumb-sm dark">🍃</div>
+          <div class="item-info"><div class="item-name dark logged" style="font-size:12px;">Ashwagandha</div></div>
+          <div class="check-sm done">✓</div>
+        </div>
+        <div class="item-row-compact dark logged">
+          <div class="thumb-sm dark">💙</div>
+          <div class="item-info"><div class="item-name dark logged" style="font-size:12px;">Medication</div></div>
+          <div class="check-sm done">✓</div>
+        </div>
+      </div>
+      <div class="bottom-nav dark" style="margin-top:8px;">
+        <div class="nav-item active dark" style="color:#a0a0e0;">
+          <div class="nav-pill dark"><span class="nav-icon">☀</span></div>
+          <span>Today</span>
+        </div>
+        <div class="nav-item dark"><span class="nav-icon">📅</span><span>History</span></div>
+        <div class="nav-item dark"><span class="nav-icon">⊞</span><span>Items</span></div>
+      </div>
+    </div>
+    <p class="note"><strong>Best for:</strong> Maximising the emotional reward of daily completion. "See you tomorrow" is warm, not clinical. Logged items shown in compact list below. Trade-off: hero section takes space that could show pending items earlier in the day.</p>
+  </div>
+
+</div>
+
+<div style="max-width:1400px;margin:40px auto 0;padding:0 16px;">
+  <div style="background:#1e1e2e;border-radius:16px;padding:24px;border:1px solid #333;">
+    <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:12px;">Quick comparison guide</div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;color:#aaa;">
+      <tr style="color:#666;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">
+        <td style="padding:6px 8px;">Direction</td>
+        <td style="padding:6px 8px;">Layout</td>
+        <td style="padding:6px 8px;">Best moment</td>
+        <td style="padding:6px 8px;">Complexity</td>
+      </tr>
+      <tr style="border-top:1px solid #2a2a3e;">
+        <td style="padding:8px;color:#fff;">1 — Clean List (Light)</td>
+        <td style="padding:8px;">Full-width rows</td>
+        <td style="padding:8px;">Morning partial state</td>
+        <td style="padding:8px;color:#7070c0;">Low ✓</td>
+      </tr>
+      <tr style="border-top:1px solid #2a2a3e;">
+        <td style="padding:8px;color:#fff;">2 — Card Grid (Light)</td>
+        <td style="padding:8px;">2-col cards</td>
+        <td style="padding:8px;">All-done visual</td>
+        <td style="padding:8px;color:#7070c0;">Low ✓</td>
+      </tr>
+      <tr style="border-top:1px solid #2a2a3e;">
+        <td style="padding:8px;color:#fff;">3 — Grouped by Time (Light)</td>
+        <td style="padding:8px;">Time sections</td>
+        <td style="padding:8px;">Routine clarity</td>
+        <td style="padding:8px;color:#b08030;">Medium</td>
+      </tr>
+      <tr style="border-top:1px solid #2a2a3e;">
+        <td style="padding:8px;color:#fff;">4 — Rich + History (Dark)</td>
+        <td style="padding:8px;">Rows + dots</td>
+        <td style="padding:8px;">Habit momentum</td>
+        <td style="padding:8px;color:#e05050;">High ⚠</td>
+      </tr>
+      <tr style="border-top:1px solid #2a2a3e;">
+        <td style="padding:8px;color:#fff;">5 — Compact Dense (Dark)</td>
+        <td style="padding:8px;">Tight rows</td>
+        <td style="padding:8px;">Many items</td>
+        <td style="padding:8px;color:#7070c0;">Low ✓</td>
+      </tr>
+      <tr style="border-top:1px solid #2a2a3e;">
+        <td style="padding:8px;color:#fff;">6 — All-Done Hero (Dark)</td>
+        <td style="padding:8px;">Hero + mini list</td>
+        <td style="padding:8px;">Completion moment</td>
+        <td style="padding:8px;color:#7070c0;">Low ✓</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
