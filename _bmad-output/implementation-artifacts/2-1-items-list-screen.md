@@ -1,6 +1,6 @@
 # Story 2.1: Items List Screen
 
-Status: review
+Status: done
 
 ## Story
 
@@ -513,3 +513,12 @@ shared/src/commonMain/kotlin/.../ui/navigation/AppNavigation.kt  ← replace ico
 ### File List
 
 ### Review Findings
+
+- [x] [Review][Patch] ViewModel injection uses `viewModel{}+koinInject` instead of `koinViewModel` — dismissed after investigation: koin-compose 1.1.5 has no `koinViewModel`; `koinInject<ItemRepository>()` returns the same singleton so capture is safe; original approach retained
+- [x] [Review][Patch] `AppRouteSaver.restore` `else` branch silently maps unknown/future ordinals to `ItemsRoute` instead of safe default [AppNavigation.kt] — fixed
+- [x] [Review][Patch] `ItemRepositoryTest` uses `executeAsList()` workaround to fetch inserted row ID — spec prohibits raw query calls [ItemRepositoryTest.kt] — fixed
+- [x] [Review][Patch] `.catch` permanently terminates upstream Flow after first error — screen freezes on Error state until process restart [ItemsViewModel.kt] — fixed with `retryWhen`
+- [x] [Review][Defer] Story 2.2 `addItem` errors silently swallowed, not surfaced to UI [AddItemScreen.kt / ItemsViewModel.kt] — deferred, pre-existing (Story 2.2 scope)
+- [x] [Review][Defer] `log_entries` date/time columns stored as TEXT with no format constraint or index [TrackerDatabase.sq] — deferred, pre-existing (future Epic 3+ concern)
+- [x] [Review][Defer] `LogRepository` stub registered in Koin but has no queries or test coverage [SharedModule.kt] — deferred, pre-existing (intentional stub for future epics)
+- [x] [Review][Defer] Nested `Scaffold` in `ItemsScreen` (introduced by Story 2.2) causes potential double-padding [ItemsScreen.kt] — deferred, pre-existing (Story 2.2 scope)

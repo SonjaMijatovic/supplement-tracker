@@ -52,7 +52,8 @@ private val AppRouteSaver: Saver<AppRoute, Int> = Saver(
         when (it) {
             0 -> TodayRoute
             1 -> HistoryRoute
-            else -> ItemsRoute
+            2 -> ItemsRoute
+            else -> TodayRoute
         }
     }
 )

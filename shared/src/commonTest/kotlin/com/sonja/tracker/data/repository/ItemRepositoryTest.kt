@@ -46,8 +46,7 @@ class ItemRepositoryTest {
         val repo = ItemRepository(db)
 
         db.trackerDatabaseQueries.insertItem("Magnesium", "21:00", null, null, null)
-        val inserted = db.trackerDatabaseQueries.selectAll().executeAsList()
-        db.trackerDatabaseQueries.deleteItemById(inserted[0].id)
+        db.trackerDatabaseQueries.deleteItemById(1L) // fresh in-memory DB; first AUTOINCREMENT id is always 1
 
         val items = repo.observeItems().first()
         assertEquals(0, items.size)
