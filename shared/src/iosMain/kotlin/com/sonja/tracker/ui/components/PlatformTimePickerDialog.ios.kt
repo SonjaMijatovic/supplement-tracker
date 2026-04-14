@@ -5,24 +5,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.interop.UIKitView
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSCalendar
 import platform.Foundation.NSCalendarUnitHour
 import platform.Foundation.NSCalendarUnitMinute
-import platform.Foundation.NSDate
 import platform.Foundation.NSDateComponents
 import platform.UIKit.UIDatePicker
 import platform.UIKit.UIDatePickerMode
@@ -45,41 +39,48 @@ actual fun PlatformTimePickerDialog(
             preferredDatePickerStyle = UIDatePickerStyle.UIDatePickerStyleWheels
             val calendar = NSCalendar.currentCalendar
             val components = NSDateComponents().apply {
+                setCalendar(calendar)
                 hour = initialHour.toLong()
                 minute = initialMinute.toLong()
             }
-            date = calendar.dateFromComponents(components) ?: NSDate()
+            date = calendar.dateFromComponents(components)
+                ?: run {
+                    val fallback = NSDateComponents().apply {
+                        setCalendar(calendar)
+                        hour = 8L
+                        minute = 0L
+                    }
+                    calendar.dateFromComponents(fallback) ?: calendar.dateFromComponents(NSDateComponents())!!
+                }
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(shape = MaterialTheme.shapes.large, tonalElevation = 6.dp) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                UIKitView(
-                    factory = { datePicker },
-                    modifier = Modifier.fillMaxWidth().height(216.dp)
+    // Rendered inline inside the sheet — no Dialog/UIWindow wrapper, which would cause
+    // ModalBottomSheet.onDismissRequest to fire on iOS due to UIWindow gesture conflicts.
+    Column(modifier = Modifier.fillMaxWidth()) {
+        UIKitView(
+            factory = { datePicker },
+            modifier = Modifier.fillMaxWidth().height(216.dp)
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = {
+                val calendar = NSCalendar.currentCalendar
+                @Suppress("UNCHECKED_CAST")
+                val components = calendar.components(
+                    NSCalendarUnitHour or NSCalendarUnitMinute,
+                    datePicker.date
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) { Text("Cancel") }
-                    TextButton(onClick = {
-                        val calendar = NSCalendar.currentCalendar
-                        @Suppress("UNCHECKED_CAST")
-                        val components = calendar.components(
-                            NSCalendarUnitHour or NSCalendarUnitMinute,
-                            datePicker.date
-                        )
-                        val h = components.hour.toInt().toString().padStart(2, '0')
-                        val m = components.minute.toInt().toString().padStart(2, '0')
-                        onTimeSelected("$h:$m")
-                    }) { Text("OK") }
-                }
-            }
+                // Guard against NSUndefinedDateComponent (~Long.MAX_VALUE) on calendar failure.
+                val rawH = components.hour
+                val rawM = components.minute
+                val hour = if (rawH in 0..23) rawH.toInt() else initialHour
+                val minute = if (rawM in 0..59) rawM.toInt() else initialMinute
+                onTimeSelected("${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}")
+            }) { Text("OK") }
         }
     }
 }

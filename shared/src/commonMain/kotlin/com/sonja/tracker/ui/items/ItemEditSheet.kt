@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.sonja.tracker.ui.components.PlatformTimePickerDialog
@@ -37,6 +38,7 @@ fun ItemEditSheet(
     var weekdayTime by remember { mutableStateOf("08:00") }
     var showTimePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -59,18 +61,33 @@ fun ItemEditSheet(
                     .focusRequester(focusRequester)
             )
 
-            ListItem(
-                headlineContent = { Text("Weekday reminder") },
-                trailingContent = {
-                    Text(
-                        text = weekdayTime,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
-                modifier = Modifier.clickable { showTimePicker = true }
-            )
-            HorizontalDivider()
+            if (showTimePicker) {
+                // Inline — no Dialog wrapper to avoid iOS UIWindow/ModalBottomSheet gesture conflict
+                PlatformTimePickerDialog(
+                    initialTime = weekdayTime,
+                    onTimeSelected = { selectedTime ->
+                        weekdayTime = selectedTime
+                        showTimePicker = false
+                    },
+                    onDismiss = { showTimePicker = false }
+                )
+            } else {
+                ListItem(
+                    headlineContent = { Text("Weekday reminder") },
+                    trailingContent = {
+                        Text(
+                            text = weekdayTime,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    modifier = Modifier.clickable {
+                        focusManager.clearFocus()
+                        showTimePicker = true
+                    }
+                )
+                HorizontalDivider()
+            }
 
             Button(
                 onClick = {
@@ -87,16 +104,5 @@ fun ItemEditSheet(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-    }
-
-    if (showTimePicker) {
-        PlatformTimePickerDialog(
-            initialTime = weekdayTime,
-            onTimeSelected = { selectedTime ->
-                weekdayTime = selectedTime
-                showTimePicker = false
-            },
-            onDismiss = { showTimePicker = false }
-        )
     }
 }

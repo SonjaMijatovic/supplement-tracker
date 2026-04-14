@@ -14,6 +14,11 @@
 - `TrackerDatabase` driver creation failure uncaught — no graceful fallback if SQLite init fails; the app will crash on first DB access with an opaque `InstanceCreationException`. Add error handling when repositories are implemented (Story 2.1+).
 - iOS `AppPreferences` ignores `context` parameter — when Epic 4 implements the Notification Service Extension, NSE may need a shared App Group `NSUserDefaults` suite rather than `standardUserDefaults`. The current API has no way to pass a suite name. Revisit in Epic 4.
 
+## Deferred from: code review of 2-2-add-item-with-name-and-weekday-reminder-time (2026-04-14)
+
+- `addItem` errors silently swallowed — `viewModelScope.launch { repository.addItem() }` has no try/catch and the UI never surfaces insert failures to the user; sheet always dismisses regardless of success. Explicitly noted in story dev notes as a known limitation. Fix when adding error handling to the write path.
+- Hardcoded UI strings not localizable — `"Add item"`, `"Save"`, `"Cancel"`, `"OK"`, `"Name"`, `"Weekday reminder"` etc. are raw literals. No localization pipeline exists yet. Address project-wide when localisation is added.
+
 ## Deferred from: code review of 2-1-items-list-screen (2026-04-14)
 
 - Story 2.2 `addItem` errors silently swallowed — `viewModelScope.launch { repository.addItem() }` has no try/catch and no UI feedback on failure. Fix when addressing Story 2.2 review.

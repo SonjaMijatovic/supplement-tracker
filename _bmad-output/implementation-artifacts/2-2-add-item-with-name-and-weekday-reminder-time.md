@@ -1,6 +1,6 @@
 # Story 2.2: Add Item with Name & Weekday Reminder Time
 
-Status: review
+Status: done
 
 ## Story
 
@@ -483,3 +483,8 @@ claude-sonnet-4-6
 - 2026-04-14: Implemented Story 2.2 — add item with name and weekday reminder time. Added ItemRepository.addItem(), ItemsViewModel.addItem(), PlatformTimePickerDialog expect/actual, ItemEditSheet ModalBottomSheet, FAB + sheet wiring in ItemsScreen, and addItem repository test.
 
 ### Review Findings
+
+- [x] [Review][Patch] iOS: `components.hour`/`components.minute` can return `NSUndefinedDateComponent` on calendar failure — `.toInt()` produces garbage stored in DB [PlatformTimePickerDialog.ios.kt] — fixed: guard against out-of-range values, fall back to `initialHour`/`initialMinute`
+- [x] [Review][Patch] iOS: `dateFromComponents` fallback is `NSDate()` (current moment) — wrong initial picker position on calendar failure [PlatformTimePickerDialog.ios.kt] — fixed: fallback to 08:00 instead of current time; also set `.calendar` on `NSDateComponents`
+- [x] [Review][Defer] `addItem` errors silently swallowed + sheet dismisses unconditionally — explicitly documented as known deferred limitation in dev notes [ItemsViewModel.kt, ItemEditSheet.kt] — deferred, pre-existing
+- [x] [Review][Defer] Hardcoded UI strings not localizable — project-wide concern, no localization pipeline yet [ItemEditSheet.kt, PlatformTimePickerDialog.*.kt] — deferred, pre-existing
