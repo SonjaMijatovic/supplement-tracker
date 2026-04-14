@@ -30,7 +30,12 @@ actual class DatabaseDriverFactory actual constructor(private val context: Any?)
 
         return NativeSqliteDriver(
             schema = TrackerDatabase.Schema,
-            name = "$supportDir/tracker.db"
+            name = "tracker.db",
+            onConfiguration = { config ->
+                config.copy(
+                    extendedConfig = config.extendedConfig.copy(basePath = supportDir)
+                )
+            }
         )
     }
 }
