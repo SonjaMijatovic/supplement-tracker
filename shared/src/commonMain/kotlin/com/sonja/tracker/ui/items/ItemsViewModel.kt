@@ -9,8 +9,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class ItemsViewModel(private val repository: ItemRepository) : ViewModel() {
+    fun addItem(name: String, weekdayTime: String) {
+        viewModelScope.launch {
+            repository.addItem(name, weekdayTime)
+        }
+    }
+
     val uiState: StateFlow<ItemsUiState> = repository
         .observeItems()
         .map<List<Item>, ItemsUiState> { items -> ItemsUiState.Success(items) }
