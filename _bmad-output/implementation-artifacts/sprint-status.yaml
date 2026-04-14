@@ -1,5 +1,5 @@
 # generated: 2026-04-07
-# last_updated: 2026-04-08
+# last_updated: 2026-04-14
 # project: Daily Supplement & Medication Tracker
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-07
-last_updated: 2026-04-08
+last_updated: 2026-04-14
 project: Daily Supplement & Medication Tracker
 project_key: NOKEY
 tracking_system: file-system
@@ -45,14 +45,14 @@ development_status:
   # Epic 1: Project Foundation & App Shell
   epic-1: in-progress
   1-1-kmp-project-initialization: done
-  1-2-sqldelight-database-schema-and-driver: backlog
-  1-3-koin-di-wiring-and-app-preferences: backlog
-  1-4-navigation-scaffold-and-dusty-indigo-theme: backlog
+  1-2-sqldelight-database-schema-and-driver: done
+  1-3-koin-di-wiring-and-app-preferences: done
+  1-4-navigation-scaffold-and-dusty-indigo-theme: done
   epic-1-retrospective: optional
 
   # Epic 2: Item Management
-  epic-2: backlog
-  2-1-items-list-screen: backlog
+  epic-2: in-progress
+  2-1-items-list-screen: review
   2-2-add-item-with-name-and-weekday-reminder-time: backlog
   2-3-weekend-reminder-time: backlog
   2-4-edit-and-delete-item: backlog

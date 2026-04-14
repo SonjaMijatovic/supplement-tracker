@@ -5,9 +5,15 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.sqldelight)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -34,15 +40,40 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.compose.material.icons.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.sqldelight.sqlite.driver)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${libs.versions.coroutines.get()}")
+        }
+        androidMain.dependencies {
+            implementation(libs.sqldelight.android.driver)
+            implementation(libs.koin.android)
+        }
+        iosArm64Main.dependencies {
+            implementation(libs.sqldelight.native.driver)
+        }
+        iosSimulatorArm64Main.dependencies {
+            implementation(libs.sqldelight.native.driver)
         }
     }
 }
 
 compose.resources {
     packageOfResClass = "com.sonja.tracker.generated.resources"
+}
+
+sqldelight {
+    databases {
+        create("TrackerDatabase") {
+            packageName.set("com.sonja.tracker")
+        }
+    }
 }
 
 android {

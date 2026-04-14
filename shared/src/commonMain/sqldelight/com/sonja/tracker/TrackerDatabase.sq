@@ -1,0 +1,27 @@
+CREATE TABLE items (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    reminder_weekday_time TEXT,
+    reminder_weekend_time TEXT,
+    image_path TEXT,
+    icon_id TEXT
+);
+
+CREATE TABLE log_entries (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    item_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    state TEXT NOT NULL,
+    logged_at TEXT NOT NULL,
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+);
+
+selectAll:
+SELECT * FROM items;
+
+insertItem:
+INSERT INTO items (name, reminder_weekday_time, reminder_weekend_time, image_path, icon_id)
+VALUES (?, ?, ?, ?, ?);
+
+deleteItemById:
+DELETE FROM items WHERE id = ?;
