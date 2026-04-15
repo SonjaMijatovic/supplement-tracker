@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sonja.tracker.data.repository.ItemRepository
+import com.sonja.tracker.domain.model.Item
 import com.sonja.tracker.ui.components.ItemRow
 import org.koin.compose.koinInject
 
@@ -39,6 +40,7 @@ fun ItemsScreen(modifier: Modifier = Modifier) {
     val viewModel: ItemsViewModel = viewModel { ItemsViewModel(repository) }
     val uiState by viewModel.uiState.collectAsState()
     var showAddSheet by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf<Item?>(null) }
 
     Scaffold(
         modifier = modifier,
@@ -90,7 +92,7 @@ fun ItemsScreen(modifier: Modifier = Modifier) {
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     ) {
                         items(state.items, key = { it.id }) { item ->
-                            ItemRow(item = item)
+                            ItemRow(item = item, onClick = { selectedItem = item })
                         }
                     }
                 }
@@ -102,6 +104,19 @@ fun ItemsScreen(modifier: Modifier = Modifier) {
         ItemEditSheet(
             onSave = { name, weekdayTime, weekendTime -> viewModel.addItem(name, weekdayTime, weekendTime) },
             onDismiss = { showAddSheet = false }
+        )
+    }
+
+    selectedItem?.let { item ->
+        ItemEditSheet(
+            initialName = item.name,
+            initialWeekdayTime = item.reminderWeekdayTime ?: "08:00",
+            initialWeekendTime = item.reminderWeekendTime,
+            onSave = { name, weekdayTime, weekendTime ->
+                viewModel.editItem(item.id, name, weekdayTime, weekendTime)
+            },
+            onDismiss = { selectedItem = null },
+            onDelete = { viewModel.deleteItem(item.id) }
         )
     }
 }

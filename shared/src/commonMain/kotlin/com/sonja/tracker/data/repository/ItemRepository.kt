@@ -22,6 +22,32 @@ class ItemRepository(private val database: TrackerDatabase) {
         }
     }
 
+    suspend fun updateItem(
+        id: Long,
+        name: String,
+        weekdayTime: String,
+        weekendTime: String?,
+        imagePath: String?,
+        iconId: String?
+    ) {
+        withContext(Dispatchers.Default) {
+            database.trackerDatabaseQueries.updateItem(
+                name = name,
+                reminder_weekday_time = weekdayTime,
+                reminder_weekend_time = weekendTime,
+                image_path = imagePath,
+                icon_id = iconId,
+                id = id
+            )
+        }
+    }
+
+    suspend fun deleteItem(id: Long) {
+        withContext(Dispatchers.Default) {
+            database.trackerDatabaseQueries.deleteItemById(id)
+        }
+    }
+
     fun observeItems(): Flow<List<Item>> =
         database.trackerDatabaseQueries.selectAll()
             .asFlow()

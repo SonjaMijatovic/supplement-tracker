@@ -23,5 +23,10 @@ insertItem:
 INSERT INTO items (name, reminder_weekday_time, reminder_weekend_time, image_path, icon_id)
 VALUES (?, ?, ?, ?, ?);
 
+updateItem:
+UPDATE items
+SET name = ?, reminder_weekday_time = ?, reminder_weekend_time = ?, image_path = ?, icon_id = ?
+WHERE id = ?;
+
 deleteItemById:
 DELETE FROM items WHERE id = ?;

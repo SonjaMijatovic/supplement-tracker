@@ -18,6 +18,28 @@ class ItemsViewModel(private val repository: ItemRepository) : ViewModel() {
         }
     }
 
+    fun editItem(id: Long, name: String, weekdayTime: String, weekendTime: String?) {
+        viewModelScope.launch {
+            val current = (uiState.value as? ItemsUiState.Success)?.items?.find { it.id == id }
+            repository.updateItem(
+                id = id,
+                name = name,
+                weekdayTime = weekdayTime,
+                weekendTime = weekendTime,
+                imagePath = current?.imagePath,
+                iconId = current?.iconId
+            )
+            // TODO Epic 4: NotificationScheduler.rescheduleForSlot(weekdayTime, weekendTime)
+        }
+    }
+
+    fun deleteItem(id: Long) {
+        viewModelScope.launch {
+            repository.deleteItem(id)
+            // TODO Epic 4: NotificationScheduler.cancelForItem(id)
+        }
+    }
+
     val uiState: StateFlow<ItemsUiState> = repository
         .observeItems()
         .map<List<Item>, ItemsUiState> { items -> ItemsUiState.Success(items) }

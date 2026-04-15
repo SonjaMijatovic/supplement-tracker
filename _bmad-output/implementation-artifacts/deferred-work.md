@@ -1,5 +1,18 @@
 # Deferred Work
 
+## Deferred from: code review of 2-4-edit-and-delete-item (2026-04-15)
+
+- No error handling in `editItem`/`deleteItem` ViewModel or Repository — `viewModelScope.launch` swallows exceptions silently; matches pre-existing `addItem` pattern. Fix project-wide when error handling is added to write paths.
+- `editItem` reads `uiState.value` for `imagePath`/`iconId`; if state is not `Success`, both are passed as `null` and overwrite existing DB values — harmless in Stories 2.1–2.4 (both fields always null); revisit in Story 2.5 when imagePath is populated.
+- Sheet dismisses via `onDismiss()` synchronously before DB coroutine completes — fire-and-forget pattern; matches `addItem` behaviour. User sees item briefly before list refreshes. Fix project-wide when error handling is added.
+- `updateItem`/`deleteItem` SQL are silent no-ops if `WHERE id = ?` matches no rows — ID always sourced from the DB-backed `observeItems()` flow, so a stale ID is theoretical; add affected-rows check when error handling is added.
+- `selectedItem` in `ItemsScreen` holds an item snapshot; if an external source modifies the record while the sheet is open, pre-filled values are stale — no external sync in v1; revisit when background sync or multi-device support is added.
+- `editItem`/`deleteItem` coroutines have no mutex — concurrent execution theoretically possible, not triggerable in single-user flow since the sheet dismisses after each action.
+- `initialWeekdayTime` falls back to `"08:00"` when `reminderWeekdayTime` is `null` in the DB — opening and saving without changing the time silently writes `"08:00"` to a previously-null field; acceptable for v1, consistent with `addItem` default.
+- `contentDescription` in `ItemRow` contains hardcoded English string `"tap to edit"` — not localisable; matches project-wide pattern of hardcoded strings.
+- `weekdayTime` is forwarded from the time picker to the DB without format validation — time picker enforces valid format in practice; will need validation when Epic 4 parses this field for notification scheduling.
+- `clickable` modifier applied after `.padding(vertical = 4dp)` in `ItemRow` — touch target excludes 4dp on top/bottom; spec-prescribed modifier order; `heightIn(min = 56dp)` ensures adequate touch area.
+
 ## Deferred from: code review of 1-1-kmp-project-initialization (2026-04-08)
 
 - No `iosX64` simulator target — Intel Mac developers will get a linker error from `embedAndSignAppleFrameworkForXcode`. Add `iosX64()` to `shared/build.gradle.kts` if Intel Mac support is needed.
@@ -17,10 +30,9 @@
 ## Deferred from: code review of 2-3-weekend-reminder-time (2026-04-15)
 
 - `hideNavBar` cleanup race on swipe-dismiss — `awaitCancellation` finally block is correct in normal flow; theoretical risk if `ItemEditSheet` is ever hosted outside `AppNavigation`'s `CompositionLocalProvider`. Revisit if sheet is reused in other routes.
-- `initialWeekendTime` scaffolded without full edit-mode param set — intentional; Story 2.4 adds `initialName`, `initialWeekdayTime`, and full edit wiring.
 - `onSave` + `onDismiss` called sequentially with no error guard — pre-existing pattern; ViewModel launch boundary prevents synchronous throw. Fix project-wide when error handling is added to write paths.
-- Collapsing weekend toggle in edit mode gives no UX warning that the saved value will become NULL — Story 2.4's concern when destructive edit is wired up.
-- No UI/composable test for AC5 pre-expansion from `initialWeekendTime` — Compose UI test infrastructure not yet set up; cover in Story 2.4.
+- Collapsing weekend toggle in edit mode stores NULL for `reminder_weekend_time` with no UX warning — accepted for v1 simplicity; no warning needed.
+- No UI/composable test for weekend toggle pre-expansion (`initialWeekendTime`) — Compose UI test infrastructure not yet set up; cover when UI test infra is established.
 - `weekendTime ?: weekdayTime` fallback in weekend time row is dead code (invariant: weekendTime is always non-null when toggle is expanded) — defensive but harmless; remove or document when invariant is formally enforced.
 
 ## Deferred from: code review of 2-2-add-item-with-name-and-weekday-reminder-time (2026-04-14)

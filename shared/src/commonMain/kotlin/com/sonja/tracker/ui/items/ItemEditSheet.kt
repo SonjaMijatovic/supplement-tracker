@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -16,6 +18,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,11 +43,15 @@ import com.sonja.tracker.ui.navigation.LocalHideNavBar
 fun ItemEditSheet(
     onSave: (name: String, weekdayTime: String, weekendTime: String?) -> Unit,
     onDismiss: () -> Unit,
-    initialWeekendTime: String? = null
+    initialName: String = "",
+    initialWeekdayTime: String = "08:00",
+    initialWeekendTime: String? = null,
+    onDelete: (() -> Unit)? = null
 ) {
-    var name by remember { mutableStateOf("") }
-    var weekdayTime by remember { mutableStateOf("08:00") }
+    var name by remember { mutableStateOf(initialName) }
+    var weekdayTime by remember { mutableStateOf(initialWeekdayTime) }
     var weekendTime by remember { mutableStateOf(initialWeekendTime) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
     var weekendToggleExpanded by remember { mutableStateOf(initialWeekendTime != null) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showWeekendTimePicker by remember { mutableStateOf(false) }
@@ -72,7 +79,10 @@ fun ItemEditSheet(
                 .padding(bottom = 16.dp + bottomSafeArea),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Add item", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = if (onDelete != null) "Edit item" else "Add item",
+                style = MaterialTheme.typography.titleLarge
+            )
 
             OutlinedTextField(
                 value = name,
@@ -162,12 +172,52 @@ fun ItemEditSheet(
                     onSave(name.trim(), weekdayTime, if (weekendToggleExpanded) weekendTime else null)
                     onDismiss()
                 },
-                enabled = name.isNotBlank(),
+                // Disabled while a time picker is open so in-progress selections aren't silently
+                // dropped. Alternative: add onTimeChanged to PlatformTimePickerDialog to capture
+                // the value continuously without requiring OK (Option A).
+                enabled = name.isNotBlank() && !showTimePicker && !showWeekendTimePicker,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Save")
             }
+
+            if (onDelete != null) {
+                TextButton(
+                    onClick = { showDeleteConfirm = true },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Delete item")
+                }
+            }
         }
+    }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete $initialName?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete?.invoke()
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     LaunchedEffect(Unit) {

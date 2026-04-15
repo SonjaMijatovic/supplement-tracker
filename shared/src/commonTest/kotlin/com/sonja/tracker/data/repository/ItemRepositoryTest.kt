@@ -65,6 +65,36 @@ class ItemRepositoryTest {
     }
 
     @Test
+    fun updateItem_updatesNameAndTimes() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin C", "09:00", null)
+        val id = repo.observeItems().first()[0].id
+
+        repo.updateItem(id, "Magnesium Glycinate", "21:00", "22:00", null, null)
+
+        val items = repo.observeItems().first()
+        assertEquals(1, items.size)
+        assertEquals("Magnesium Glycinate", items[0].name)
+        assertEquals("21:00", items[0].reminderWeekdayTime)
+        assertEquals("22:00", items[0].reminderWeekendTime)
+    }
+
+    @Test
+    fun deleteItem_removesItemFromDb() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin D3", "08:00", null)
+        val id = repo.observeItems().first()[0].id
+
+        repo.deleteItem(id)
+
+        assertEquals(0, repo.observeItems().first().size)
+    }
+
+    @Test
     fun observeItems_emitsEmptyAfterDelete() = runTest {
         val db = TrackerDatabase(createDriver())
         val repo = ItemRepository(db)
