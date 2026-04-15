@@ -14,6 +14,15 @@
 - `TrackerDatabase` driver creation failure uncaught — no graceful fallback if SQLite init fails; the app will crash on first DB access with an opaque `InstanceCreationException`. Add error handling when repositories are implemented (Story 2.1+).
 - iOS `AppPreferences` ignores `context` parameter — when Epic 4 implements the Notification Service Extension, NSE may need a shared App Group `NSUserDefaults` suite rather than `standardUserDefaults`. The current API has no way to pass a suite name. Revisit in Epic 4.
 
+## Deferred from: code review of 2-3-weekend-reminder-time (2026-04-15)
+
+- `hideNavBar` cleanup race on swipe-dismiss — `awaitCancellation` finally block is correct in normal flow; theoretical risk if `ItemEditSheet` is ever hosted outside `AppNavigation`'s `CompositionLocalProvider`. Revisit if sheet is reused in other routes.
+- `initialWeekendTime` scaffolded without full edit-mode param set — intentional; Story 2.4 adds `initialName`, `initialWeekdayTime`, and full edit wiring.
+- `onSave` + `onDismiss` called sequentially with no error guard — pre-existing pattern; ViewModel launch boundary prevents synchronous throw. Fix project-wide when error handling is added to write paths.
+- Collapsing weekend toggle in edit mode gives no UX warning that the saved value will become NULL — Story 2.4's concern when destructive edit is wired up.
+- No UI/composable test for AC5 pre-expansion from `initialWeekendTime` — Compose UI test infrastructure not yet set up; cover in Story 2.4.
+- `weekendTime ?: weekdayTime` fallback in weekend time row is dead code (invariant: weekendTime is always non-null when toggle is expanded) — defensive but harmless; remove or document when invariant is formally enforced.
+
 ## Deferred from: code review of 2-2-add-item-with-name-and-weekday-reminder-time (2026-04-14)
 
 - `addItem` errors silently swallowed — `viewModelScope.launch { repository.addItem() }` has no try/catch and the UI never surfaces insert failures to the user; sheet always dismisses regardless of success. Explicitly noted in story dev notes as a known limitation. Fix when adding error handling to the write path.

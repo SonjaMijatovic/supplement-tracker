@@ -32,12 +32,36 @@ class ItemRepositoryTest {
         val db = TrackerDatabase(createDriver())
         val repo = ItemRepository(db)
 
-        repo.addItem("Vitamin C", "09:00")
+        repo.addItem("Vitamin C", "09:00", null)
 
         val items = repo.observeItems().first()
         assertEquals(1, items.size)
         assertEquals("Vitamin C", items[0].name)
         assertEquals("09:00", items[0].reminderWeekdayTime)
+    }
+
+    @Test
+    fun addItem_withWeekendTime_storesWeekendTime() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin C", "09:00", "10:00")
+
+        val items = repo.observeItems().first()
+        assertEquals(1, items.size)
+        assertEquals("10:00", items[0].reminderWeekendTime)
+    }
+
+    @Test
+    fun addItem_withoutWeekendTime_storesNull() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin C", "09:00", null)
+
+        val items = repo.observeItems().first()
+        assertEquals(1, items.size)
+        assertEquals(null, items[0].reminderWeekendTime)
     }
 
     @Test

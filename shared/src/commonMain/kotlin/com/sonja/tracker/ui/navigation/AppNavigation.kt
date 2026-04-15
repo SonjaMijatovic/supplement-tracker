@@ -11,8 +11,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -21,6 +24,10 @@ import com.sonja.tracker.ui.history.HistoryScreen
 import com.sonja.tracker.ui.items.ItemsScreen
 import com.sonja.tracker.ui.today.TodayScreen
 import kotlinx.serialization.Serializable
+
+/** Set to true while a full-screen overlay (e.g. time picker inside bottom sheet) is visible,
+ *  so the tab bar can be hidden to avoid peeking through on iOS. */
+val LocalHideNavBar = compositionLocalOf { mutableStateOf(false) }
 
 // Route definitions — @Serializable for future Navigation 3 KMP library swap.
 // (androidx.navigation3 does not yet publish iOS klibs; navigation is state-based for now.)
@@ -63,35 +70,40 @@ fun AppNavigation() {
     var selectedTab: AppRoute by rememberSaveable(stateSaver = AppRouteSaver) {
         mutableStateOf(TodayRoute)
     }
+    val hideNavBar = remember { mutableStateOf(false) }
 
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = selectedTab == TodayRoute,
-                    onClick = { selectedTab = TodayRoute },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Today") },
-                    label = { Text("Today") }
-                )
-                NavigationBarItem(
-                    selected = selectedTab == HistoryRoute,
-                    onClick = { selectedTab = HistoryRoute },
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = "History") },
-                    label = { Text("History") }
-                )
-                NavigationBarItem(
-                    selected = selectedTab == ItemsRoute,
-                    onClick = { selectedTab = ItemsRoute },
-                    icon = { Icon(Icons.Default.List, contentDescription = "Items") },
-                    label = { Text("Items") }
-                )
+    CompositionLocalProvider(LocalHideNavBar provides hideNavBar) {
+        Scaffold(
+            bottomBar = {
+                if (!hideNavBar.value) {
+                    NavigationBar {
+                        NavigationBarItem(
+                            selected = selectedTab == TodayRoute,
+                            onClick = { selectedTab = TodayRoute },
+                            icon = { Icon(Icons.Default.Home, contentDescription = "Today") },
+                            label = { Text("Today") }
+                        )
+                        NavigationBarItem(
+                            selected = selectedTab == HistoryRoute,
+                            onClick = { selectedTab = HistoryRoute },
+                            icon = { Icon(Icons.Default.DateRange, contentDescription = "History") },
+                            label = { Text("History") }
+                        )
+                        NavigationBarItem(
+                            selected = selectedTab == ItemsRoute,
+                            onClick = { selectedTab = ItemsRoute },
+                            icon = { Icon(Icons.Default.List, contentDescription = "Items") },
+                            label = { Text("Items") }
+                        )
+                    }
+                }
             }
-        }
-    ) { innerPadding ->
-        when (selectedTab) {
-            TodayRoute -> TodayScreen(modifier = Modifier.padding(innerPadding))
-            HistoryRoute -> HistoryScreen(modifier = Modifier.padding(innerPadding))
-            ItemsRoute -> ItemsScreen(modifier = Modifier.padding(innerPadding))
+        ) { innerPadding ->
+            when (selectedTab) {
+                TodayRoute -> TodayScreen(modifier = Modifier.padding(innerPadding))
+                HistoryRoute -> HistoryScreen(modifier = Modifier.padding(innerPadding))
+                ItemsRoute -> ItemsScreen(modifier = Modifier.padding(innerPadding))
+            }
         }
     }
 }

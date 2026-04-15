@@ -100,7 +100,7 @@ fun ItemsScreen(modifier: Modifier = Modifier) {
 
     if (showAddSheet) {
         ItemEditSheet(
-            onSave = { name, weekdayTime -> viewModel.addItem(name, weekdayTime) },
+            onSave = { name, weekdayTime, weekendTime -> viewModel.addItem(name, weekdayTime, weekendTime) },
             onDismiss = { showAddSheet = false }
         )
     }

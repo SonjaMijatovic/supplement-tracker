@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class ItemsViewModel(private val repository: ItemRepository) : ViewModel() {
-    fun addItem(name: String, weekdayTime: String) {
+    fun addItem(name: String, weekdayTime: String, weekendTime: String?) {
         viewModelScope.launch {
-            repository.addItem(name, weekdayTime)
+            repository.addItem(name, weekdayTime, weekendTime)
         }
     }
 

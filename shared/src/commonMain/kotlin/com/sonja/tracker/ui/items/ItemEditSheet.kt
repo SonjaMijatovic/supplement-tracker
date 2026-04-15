@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,28 +26,50 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.sonja.tracker.ui.components.PlatformTimePickerDialog
+import com.sonja.tracker.ui.components.rememberBottomSafeAreaPadding
+import com.sonja.tracker.ui.navigation.LocalHideNavBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemEditSheet(
-    onSave: (name: String, weekdayTime: String) -> Unit,
-    onDismiss: () -> Unit
+    onSave: (name: String, weekdayTime: String, weekendTime: String?) -> Unit,
+    onDismiss: () -> Unit,
+    initialWeekendTime: String? = null
 ) {
     var name by remember { mutableStateOf("") }
     var weekdayTime by remember { mutableStateOf("08:00") }
+    var weekendTime by remember { mutableStateOf(initialWeekendTime) }
+    var weekendToggleExpanded by remember { mutableStateOf(initialWeekendTime != null) }
     var showTimePicker by remember { mutableStateOf(false) }
+    var showWeekendTimePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val bottomSafeArea = rememberBottomSafeAreaPadding()
+    val hideNavBar = LocalHideNavBar.current
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    val pickerOrExpandedActive = weekendToggleExpanded || showTimePicker || showWeekendTimePicker
+    LaunchedEffect(pickerOrExpandedActive) {
+        hideNavBar.value = pickerOrExpandedActive
+    }
+
+    // Restore nav bar when sheet is dismissed
+    LaunchedEffect(Unit) {
+        try { kotlinx.coroutines.awaitCancellation() } finally { hideNavBar.value = false }
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp),
+                .padding(bottom = 16.dp + bottomSafeArea),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text("Add item", style = MaterialTheme.typography.titleLarge)
@@ -61,9 +85,10 @@ fun ItemEditSheet(
                     .focusRequester(focusRequester)
             )
 
-            if (showTimePicker) {
-                // Inline — no Dialog wrapper to avoid iOS UIWindow/ModalBottomSheet gesture conflict
-                PlatformTimePickerDialog(
+            // Inline pickers replace ALL list rows so the sheet never overflows on iOS.
+            // No Dialog wrapper — avoids iOS UIWindow/ModalBottomSheet gesture conflict.
+            when {
+                showTimePicker -> PlatformTimePickerDialog(
                     initialTime = weekdayTime,
                     onTimeSelected = { selectedTime ->
                         weekdayTime = selectedTime
@@ -71,27 +96,70 @@ fun ItemEditSheet(
                     },
                     onDismiss = { showTimePicker = false }
                 )
-            } else {
-                ListItem(
-                    headlineContent = { Text("Weekday reminder") },
-                    trailingContent = {
-                        Text(
-                            text = weekdayTime,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                showWeekendTimePicker -> PlatformTimePickerDialog(
+                    initialTime = weekendTime ?: weekdayTime,
+                    onTimeSelected = { selectedTime ->
+                        weekendTime = selectedTime
+                        showWeekendTimePicker = false
                     },
-                    modifier = Modifier.clickable {
-                        focusManager.clearFocus()
-                        showTimePicker = true
-                    }
+                    onDismiss = { showWeekendTimePicker = false }
                 )
-                HorizontalDivider()
+                else -> {
+                    ListItem(
+                        headlineContent = { Text("Weekday reminder") },
+                        trailingContent = {
+                            Text(
+                                text = weekdayTime,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        modifier = Modifier.clickable {
+                            focusManager.clearFocus()
+                            showTimePicker = true
+                        }
+                    )
+                    HorizontalDivider()
+
+                    // Weekend toggle row
+                    ListItem(
+                        headlineContent = { Text("Different time on weekends?") },
+                        trailingContent = {
+                            Checkbox(checked = weekendToggleExpanded, onCheckedChange = null)
+                        },
+                        modifier = Modifier
+                            .clickable {
+                                weekendToggleExpanded = !weekendToggleExpanded
+                                if (weekendToggleExpanded && weekendTime == null) {
+                                    weekendTime = weekdayTime
+                                }
+                            }
+                            .semantics { role = Role.Checkbox }
+                    )
+
+                    if (weekendToggleExpanded) {
+                        ListItem(
+                            headlineContent = { Text("Weekend reminder") },
+                            trailingContent = {
+                                Text(
+                                    text = weekendTime ?: weekdayTime,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            modifier = Modifier.clickable {
+                                focusManager.clearFocus()
+                                showWeekendTimePicker = true
+                            }
+                        )
+                        HorizontalDivider()
+                    }
+                }
             }
 
             Button(
                 onClick = {
-                    onSave(name.trim(), weekdayTime)
+                    onSave(name.trim(), weekdayTime, if (weekendToggleExpanded) weekendTime else null)
                     onDismiss()
                 },
                 enabled = name.isNotBlank(),

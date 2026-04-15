@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -60,7 +61,8 @@ actual fun PlatformTimePickerDialog(
     Column(modifier = Modifier.fillMaxWidth()) {
         UIKitView(
             factory = { datePicker },
-            modifier = Modifier.fillMaxWidth().height(216.dp)
+            modifier = Modifier.fillMaxWidth().height(216.dp),
+            background = MaterialTheme.colorScheme.surface
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
