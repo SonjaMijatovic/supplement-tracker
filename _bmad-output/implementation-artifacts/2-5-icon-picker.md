@@ -1,6 +1,6 @@
 # Story 2.5: Icon Picker
 
-Status: review
+Status: done
 
 ## Story
 
@@ -10,7 +10,7 @@ so that I can instantly recognise each supplement by its icon without reading th
 
 ## Acceptance Criteria
 
-1. **Given** the user has entered an item name in the `ItemEditSheet` **When** the keyboard Done action is triggered **Then** the `IconPickerGrid` opens automatically as a section within the sheet, with a prominent "Skip" button visible.
+1. **Given** the user is in the `ItemEditSheet` **When** the sheet is open **Then** a "Choose icon" row is always visible as a collapsible section; tapping it expands the `IconPickerGrid` with a prominent "Skip" button visible.
 
 2. **Given** the `IconPickerGrid` is displayed **When** rendered **Then** it shows approximately 23 icons — 20 from Material Icons Extended and 3 custom SVGs stored in `commonMain/composeResources/drawable/` — in a scrollable grid of rounded-square tiles.
 
@@ -20,7 +20,7 @@ so that I can instantly recognise each supplement by its icon without reading th
 
 5. **Given** an icon is selected and the item is saved **When** the item appears in any screen **Then** the selected icon is displayed inside the 40dp rounded-square thumbnail in `ItemRow`.
 
-6. **Given** an item with an existing icon is opened for editing **When** the `ItemEditSheet` opens **Then** the previously selected icon is shown as the current selection in the `IconPickerGrid` (picker is visible on open in edit mode).
+6. **Given** an item with an existing icon is opened for editing **When** the `ItemEditSheet` opens **Then** the previously selected icon is shown in the collapsed "Choose icon" row header; the user can tap the row to expand the `IconPickerGrid` and change the selection.
 
 ## Tasks / Subtasks
 
@@ -608,6 +608,18 @@ _bmad-output/implementation-artifacts/sprint-status.yaml
 - UX spec: `ItemEditSheet` anatomy — "Name field → icon picker grid (auto-opens after name entry, Skip visible) → weekday time row → ..." [ux-design-specification.md, "ItemEditSheet" component section]
 - Epic 2.5 AC — icon picker auto-opens after name entry; ~24 icons in scrollable grid; selected tile indigo border; Skip stores NULL; previously-selected icon shown in edit mode [epics.md, "Story 2.5: Icon Picker"]
 - Deferred work fixed — *editItem reads stale uiState for iconId* [deferred-work.md, "Deferred from code review of 2-4-edit-and-delete-item"]
+
+---
+
+## Review Findings
+
+- [x] [Review][Decision] Picker interaction model — accepted collapsible design (option B); ACs 1 and 6 updated to reflect always-visible collapsible row.
+- [x] [Review][Patch] Dead fill path on `ic_herb.xml` stem — removed zero-area fill path; stroke path handles the stem [ic_herb.xml]
+- [x] [Review][Patch] `ic_capsule.xml` divider line is sub-pixel — fixed rect from 0.1 to 1.0 unit height (11.5–12.5) [ic_capsule.xml]
+- [x] [Review][Patch] `ListItem` accordion toggle missing accessibility semantics — added `semantics { role = Role.Button; contentDescription = "Choose icon, expand/collapse" }` [ItemEditSheet.kt]
+- [x] [Review][Defer] Silent no-op for unknown `iconId` in `ItemIconContent` — if a stored `iconId` is removed from `ItemIcons` registry, the item thumbnail renders empty with no warning; intentional design, low risk while iconIds are app-controlled — deferred, pre-existing
+- [x] [Review][Defer] `editItem` `imagePath` race condition — if `uiState` is not `Success` when `editItem` runs, `current == null` and `imagePath` is passed as null, silently clearing any real `imagePath`; benign until Story 2.6 when `imagePath` becomes non-null — deferred, pre-existing
+- [x] [Review][Defer] Skip button doesn't reset scroll position after collapsing picker — minor UX: user may be left scrolled to blank space after tapping Skip — deferred, pre-existing
 
 ---
 

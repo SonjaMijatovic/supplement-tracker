@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -136,7 +137,12 @@ fun ItemEditSheet(
                             contentDescription = null
                         )
                     },
-                    modifier = Modifier.clickable { iconPickerVisible = !iconPickerVisible }
+                    modifier = Modifier
+                        .semantics {
+                            role = Role.Button
+                            contentDescription = if (iconPickerVisible) "Choose icon, collapse" else "Choose icon, expand"
+                        }
+                        .clickable { iconPickerVisible = !iconPickerVisible }
                 )
                 if (iconPickerVisible) {
                     IconPickerGrid(

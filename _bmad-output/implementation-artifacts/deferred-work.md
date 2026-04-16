@@ -1,8 +1,11 @@
 # Deferred Work
 
-## Deferred from: Story 2.5 (icon picker) (2026-04-16)
+## Deferred from: code review of 2-5-icon-picker (2026-04-16)
 
 - `ItemRow` contentDescription is hardcoded English — Story 2.5 added `"No icon"` / `"[name] icon"`; project-wide localisation deferred.
+- Silent no-op for unknown `iconId` in `ItemIconContent` — if a previously-stored `iconId` is removed from `ItemIcons` registry, the item thumbnail renders empty with no warning; intentional design, low risk while iconIds are app-controlled. Add debug logging when a logging infrastructure is in place.
+- `editItem` `imagePath` race condition — if `uiState` is not `Success` when `editItem` coroutine runs, `current == null` and `imagePath` is passed as `null`, silently clearing any existing `imagePath` value in the DB; benign until Story 2.6 when `imagePath` becomes non-null. Fix before or during Story 2.6 implementation.
+- Skip button doesn't reset scroll position after collapsing picker — minor UX: user scrolled down to the picker may be left viewing blank space after tapping Skip; fix when UX polish pass is done.
 
 ## Deferred from: code review of 2-4-edit-and-delete-item (2026-04-15)
 

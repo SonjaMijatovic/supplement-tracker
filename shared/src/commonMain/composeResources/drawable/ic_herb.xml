@@ -6,9 +6,6 @@
   <!-- Herb/plant sprig: stem with leaves -->
   <!-- Main stem -->
   <path
-      android:fillColor="#FF000000"
-      android:pathData="M12,20 L12,8" />
-  <path
       android:strokeColor="#FF000000"
       android:strokeWidth="1.5"
       android:strokeLineCap="round"
