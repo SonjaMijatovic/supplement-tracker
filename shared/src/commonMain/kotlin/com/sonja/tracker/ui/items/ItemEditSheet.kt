@@ -1,17 +1,27 @@
 package com.sonja.tracker.ui.items
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -25,7 +35,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
@@ -41,11 +53,12 @@ import com.sonja.tracker.ui.navigation.LocalHideNavBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemEditSheet(
-    onSave: (name: String, weekdayTime: String, weekendTime: String?) -> Unit,
+    onSave: (name: String, weekdayTime: String, weekendTime: String?, iconId: String?) -> Unit,
     onDismiss: () -> Unit,
     initialName: String = "",
     initialWeekdayTime: String = "08:00",
     initialWeekendTime: String? = null,
+    initialIconId: String? = null,
     onDelete: (() -> Unit)? = null
 ) {
     var name by remember { mutableStateOf(initialName) }
@@ -55,6 +68,8 @@ fun ItemEditSheet(
     var weekendToggleExpanded by remember { mutableStateOf(initialWeekendTime != null) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showWeekendTimePicker by remember { mutableStateOf(false) }
+    var selectedIconId by remember { mutableStateOf(initialIconId) }
+    var iconPickerVisible by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -75,6 +90,7 @@ fun ItemEditSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 16.dp + bottomSafeArea),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -94,6 +110,44 @@ fun ItemEditSheet(
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
             )
+
+            Column {
+                ListItem(
+                    headlineContent = {
+                        Text(if (selectedIconId != null) "Icon selected" else "Choose icon")
+                    },
+                    leadingContent = {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val iconId = selectedIconId
+                            if (iconId != null) {
+                                ItemIconContent(iconId = iconId, modifier = Modifier.size(24.dp))
+                            }
+                        }
+                    },
+                    trailingContent = {
+                        Icon(
+                            imageVector = if (iconPickerVisible) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                            contentDescription = null
+                        )
+                    },
+                    modifier = Modifier.clickable { iconPickerVisible = !iconPickerVisible }
+                )
+                if (iconPickerVisible) {
+                    IconPickerGrid(
+                        selectedIconId = selectedIconId,
+                        onIconSelected = { iconId ->
+                            selectedIconId = iconId
+                            if (iconId == null) iconPickerVisible = false
+                        }
+                    )
+                }
+            }
 
             // Inline pickers replace ALL list rows so the sheet never overflows on iOS.
             // No Dialog wrapper — avoids iOS UIWindow/ModalBottomSheet gesture conflict.
@@ -169,7 +223,7 @@ fun ItemEditSheet(
 
             Button(
                 onClick = {
-                    onSave(name.trim(), weekdayTime, if (weekendToggleExpanded) weekendTime else null)
+                    onSave(name.trim(), weekdayTime, if (weekendToggleExpanded) weekendTime else null, selectedIconId)
                     onDismiss()
                 },
                 // Disabled while a time picker is open so in-progress selections aren't silently

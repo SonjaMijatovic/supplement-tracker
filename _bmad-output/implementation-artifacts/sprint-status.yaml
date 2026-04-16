@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-07
-last_updated: 2026-04-15 # story 2.4 done
+last_updated: 2026-04-16 # story 2.5 review
 project: Daily Supplement & Medication Tracker
 project_key: NOKEY
 tracking_system: file-system
@@ -56,7 +56,7 @@ development_status:
   2-2-add-item-with-name-and-weekday-reminder-time: done
   2-3-weekend-reminder-time: done
   2-4-edit-and-delete-item: done
-  2-5-icon-picker: backlog
+  2-5-icon-picker: review
   2-6-item-photos-camera-and-gallery: backlog
   epic-2-retrospective: optional
 

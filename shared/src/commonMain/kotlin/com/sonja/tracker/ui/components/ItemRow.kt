@@ -46,16 +46,21 @@ fun ItemRow(
             .then(clickModifier),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 40dp rounded-square thumbnail placeholder
-        // Icon/image rendering added in Story 2.5 (icon picker) + Story 2.6 (photos)
         androidx.compose.foundation.layout.Box(
             modifier = Modifier
                 .size(40.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.primaryContainer)
-                .semantics { contentDescription = "Item icon" },
+                .semantics {
+                    contentDescription = if (item.iconId != null) "${item.name} icon" else "No icon"
+                },
             contentAlignment = Alignment.Center
-        ) {}
+        ) {
+            if (item.iconId != null) {
+                com.sonja.tracker.ui.items.ItemIconContent(iconId = item.iconId, modifier = Modifier.size(24.dp))
+            }
+            // item.imagePath rendering added in Story 2.6
+        }
         Spacer(Modifier.width(12.dp))
         Text(
             text = item.name,

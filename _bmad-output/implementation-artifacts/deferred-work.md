@@ -1,9 +1,13 @@
 # Deferred Work
 
+## Deferred from: Story 2.5 (icon picker) (2026-04-16)
+
+- `ItemRow` contentDescription is hardcoded English — Story 2.5 added `"No icon"` / `"[name] icon"`; project-wide localisation deferred.
+
 ## Deferred from: code review of 2-4-edit-and-delete-item (2026-04-15)
 
 - No error handling in `editItem`/`deleteItem` ViewModel or Repository — `viewModelScope.launch` swallows exceptions silently; matches pre-existing `addItem` pattern. Fix project-wide when error handling is added to write paths.
-- `editItem` reads `uiState.value` for `imagePath`/`iconId`; if state is not `Success`, both are passed as `null` and overwrite existing DB values — harmless in Stories 2.1–2.4 (both fields always null); revisit in Story 2.5 when imagePath is populated.
+- `editItem` reads `uiState.value` for `imagePath`; if state is not `Success`, it is passed as `null` and overwrites existing DB value — harmless until Story 2.6 when imagePath is populated; revisit then.
 - Sheet dismisses via `onDismiss()` synchronously before DB coroutine completes — fire-and-forget pattern; matches `addItem` behaviour. User sees item briefly before list refreshes. Fix project-wide when error handling is added.
 - `updateItem`/`deleteItem` SQL are silent no-ops if `WHERE id = ?` matches no rows — ID always sourced from the DB-backed `observeItems()` flow, so a stale ID is theoretical; add affected-rows check when error handling is added.
 - `selectedItem` in `ItemsScreen` holds an item snapshot; if an external source modifies the record while the sheet is open, pre-filled values are stale — no external sync in v1; revisit when background sync or multi-device support is added.

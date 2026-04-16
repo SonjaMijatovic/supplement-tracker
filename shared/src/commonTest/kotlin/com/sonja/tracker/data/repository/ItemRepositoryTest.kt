@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class ItemRepositoryTest {
 
@@ -92,6 +93,29 @@ class ItemRepositoryTest {
         repo.deleteItem(id)
 
         assertEquals(0, repo.observeItems().first().size)
+    }
+
+    @Test
+    fun addItem_withIconId_storesIconId() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin D3", "08:00", null, iconId = "medication")
+
+        val items = repo.observeItems().first()
+        assertEquals(1, items.size)
+        assertEquals("medication", items[0].iconId)
+    }
+
+    @Test
+    fun addItem_withNullIconId_storesNull() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin C", "09:00", null)  // default iconId = null
+
+        val items = repo.observeItems().first()
+        assertNull(items[0].iconId)
     }
 
     @Test
