@@ -4,6 +4,7 @@ import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.sonja.tracker.TrackerDatabase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.DayOfWeek
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -151,5 +152,100 @@ class ItemRepositoryTest {
 
         val items = repo.observeItems().first()
         assertEquals(0, items.size)
+    }
+
+    // --- observeTodayGroups tests ---
+
+    @Test
+    fun observeTodayGroups_weekday_groupsItemsByWeekdayTime() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin C", "08:00", null)
+        repo.addItem("Fish Oil", "08:00", null)
+        repo.addItem("Magnesium", "21:00", null)
+
+        val groups = repo.observeTodayGroups(today = DayOfWeek.MONDAY).first()
+
+        assertEquals(2, groups.size)
+        assertEquals("08:00", groups[0].timeSlot)
+        assertEquals(2, groups[0].items.size)
+        assertEquals("21:00", groups[1].timeSlot)
+        assertEquals(1, groups[1].items.size)
+    }
+
+    @Test
+    fun observeTodayGroups_weekday_groupsSortedChronologically() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Magnesium", "21:00", null)
+        repo.addItem("Vitamin C", "08:00", null)
+        repo.addItem("Fish Oil", "13:00", null)
+
+        val groups = repo.observeTodayGroups(today = DayOfWeek.WEDNESDAY).first()
+
+        assertEquals(3, groups.size)
+        assertEquals("08:00", groups[0].timeSlot)
+        assertEquals("13:00", groups[1].timeSlot)
+        assertEquals("21:00", groups[2].timeSlot)
+    }
+
+    @Test
+    fun observeTodayGroups_weekend_usesWeekendTimeWhenSet() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        // Item with both weekday and weekend times
+        repo.addItem("Vitamin C", "08:00", "10:00")
+
+        val groups = repo.observeTodayGroups(today = DayOfWeek.SATURDAY).first()
+
+        assertEquals(1, groups.size)
+        assertEquals("10:00", groups[0].timeSlot)
+    }
+
+    @Test
+    fun observeTodayGroups_weekend_fallsBackToWeekdayTimeWhenNoWeekendTime() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        // Item with no weekend time
+        repo.addItem("Vitamin C", "08:00", null)
+
+        val groups = repo.observeTodayGroups(today = DayOfWeek.SUNDAY).first()
+
+        assertEquals(1, groups.size)
+        assertEquals("08:00", groups[0].timeSlot)
+    }
+
+    @Test
+    fun observeTodayGroups_emptyWhenNoItems() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        val groups = repo.observeTodayGroups(today = DayOfWeek.TUESDAY).first()
+
+        assertEquals(0, groups.size)
+    }
+
+    @Test
+    fun observeTodayGroups_weekend_mixedItemsGroupedCorrectly() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        // Item A: weekday 08:00, weekend 10:00
+        // Item B: weekday 08:00, no weekend time (falls back to 08:00)
+        repo.addItem("Item A", "08:00", "10:00")
+        repo.addItem("Item B", "08:00", null)
+
+        val groups = repo.observeTodayGroups(today = DayOfWeek.SATURDAY).first()
+
+        // Item A -> 10:00, Item B -> 08:00 (fallback) => 2 separate groups
+        assertEquals(2, groups.size)
+        assertEquals("08:00", groups[0].timeSlot)
+        assertEquals("Item B", groups[0].items[0].name)
+        assertEquals("10:00", groups[1].timeSlot)
+        assertEquals("Item A", groups[1].items[0].name)
     }
 }

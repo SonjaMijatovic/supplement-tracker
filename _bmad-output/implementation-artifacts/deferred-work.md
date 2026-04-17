@@ -1,5 +1,9 @@
 # Deferred Work
 
+## Deferred from: code review of 3-1-today-screen-grouped-item-list (2026-04-17)
+
+- `formatTimeSlot` no hour-range validation — a malformed stored value like "25:00" would render as "13:00 PM"; app controls time storage via its own picker so unreachable in practice. Add validation when a time-input sanitisation pass is done.
+
 ## Deferred from: code review of 2-6-item-photos-camera-and-gallery (2026-04-17)
 
 - No image file cleanup on item delete or photo replace — `AppImageStorage` files are never deleted; each "replace photo" orphans the old file. Fix in a future story when a storage management pass is done.

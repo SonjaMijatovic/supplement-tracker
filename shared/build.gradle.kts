@@ -47,6 +47,7 @@ kotlin {
             implementation(libs.compose.material.icons.core)
             implementation(libs.compose.material.icons.extended)
             implementation(libs.coil.compose)
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

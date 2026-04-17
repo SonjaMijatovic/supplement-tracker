@@ -100,7 +100,10 @@ fun AppNavigation() {
             }
         ) { innerPadding ->
             when (selectedTab) {
-                TodayRoute -> TodayScreen(modifier = Modifier.padding(innerPadding))
+                TodayRoute -> TodayScreen(
+                    modifier = Modifier.padding(innerPadding),
+                    onNavigateToItems = { selectedTab = ItemsRoute }
+                )
                 HistoryRoute -> HistoryScreen(modifier = Modifier.padding(innerPadding))
                 ItemsRoute -> ItemsScreen(modifier = Modifier.padding(innerPadding))
             }

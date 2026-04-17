@@ -4,10 +4,15 @@ import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.sonja.tracker.TrackerDatabase
 import com.sonja.tracker.domain.model.Item
+import com.sonja.tracker.domain.model.TimeGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlin.time.Clock
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 class ItemRepository(private val database: TrackerDatabase) {
     suspend fun addItem(
@@ -51,6 +56,32 @@ class ItemRepository(private val database: TrackerDatabase) {
     suspend fun deleteItem(id: Long) {
         withContext(Dispatchers.Default) {
             database.trackerDatabaseQueries.deleteItemById(id)
+        }
+    }
+
+    /**
+     * Returns items grouped by their effective reminder time for [today].
+     * Weekdays use reminderWeekdayTime; weekends use reminderWeekendTime ?? reminderWeekdayTime.
+     * Items with no effective time are excluded. Groups are sorted chronologically.
+     * Pass null for [today] to use the current system day (production path).
+     * Tests pass an explicit [DayOfWeek] for deterministic behaviour.
+     */
+    fun observeTodayGroups(today: DayOfWeek? = null): Flow<List<TimeGroup>> {
+        return observeItems().map { items ->
+            val effectiveDay = today ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).dayOfWeek
+            val isWeekend = effectiveDay == DayOfWeek.SATURDAY || effectiveDay == DayOfWeek.SUNDAY
+            items
+                .mapNotNull { item ->
+                    val slot = if (isWeekend) item.reminderWeekendTime ?: item.reminderWeekdayTime
+                               else item.reminderWeekdayTime
+                    slot?.let { item to it }
+                }
+                .groupBy { (_, slot) -> slot }
+                .entries
+                .sortedBy { (slot, _) -> slot }
+                .map { (slot, pairs) ->
+                    TimeGroup(timeSlot = slot, items = pairs.map { (item, _) -> item })
+                }
         }
     }
 
