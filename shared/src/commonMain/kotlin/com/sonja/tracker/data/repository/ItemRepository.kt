@@ -10,13 +10,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class ItemRepository(private val database: TrackerDatabase) {
-    suspend fun addItem(name: String, weekdayTime: String, weekendTime: String?, iconId: String? = null) {
+    suspend fun addItem(
+        name: String,
+        weekdayTime: String,
+        weekendTime: String?,
+        iconId: String? = null,
+        imagePath: String? = null
+    ) {
         withContext(Dispatchers.Default) {
             database.trackerDatabaseQueries.insertItem(
                 name = name,
                 reminder_weekday_time = weekdayTime,
                 reminder_weekend_time = weekendTime,
-                image_path = null,
+                image_path = imagePath,
                 icon_id = iconId
             )
         }

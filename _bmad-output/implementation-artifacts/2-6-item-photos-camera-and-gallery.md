@@ -1,6 +1,6 @@
 # Story 2.6: Item Photos (Camera & Gallery)
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -30,75 +30,100 @@ So that I can recognise items instantly by their actual appearance.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create `AppImageStorage` expect/actual (AC: 2, 3)
-  - [ ] Create `shared/src/commonMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.kt` — expect class
-  - [ ] Create `shared/src/androidMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.android.kt` — actual
-  - [ ] Create `shared/src/iosMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.ios.kt` — actual
-  - [ ] See Dev Notes Task 1 for exact code
+- [x] Task 1: Create `AppImageStorage` expect/actual (AC: 2, 3)
+  - [x] Create `shared/src/commonMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.kt` — expect class
+  - [x] Create `shared/src/androidMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.android.kt` — actual
+  - [x] Create `shared/src/iosMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.ios.kt` — actual
+  - [x] See Dev Notes Task 1 for exact code
 
-- [ ] Task 2: Register `AppImageStorage` in Koin DI (AC: 2, 3)
-  - [ ] Add `single { AppImageStorage(get()) }` to `SharedModule.kt`
-  - [ ] Verify Android and iOS module DI wiring — see Dev Notes Task 2
+- [x] Task 2: Register `AppImageStorage` in Koin DI (AC: 2, 3)
+  - [x] Add `single { AppImageStorage(androidContext()) }` to `AndroidModule.kt` and `single { AppImageStorage() }` to `IosModule.kt` (mirrors `DatabaseDriverFactory` pattern exactly)
+  - [x] Verify Android and iOS module DI wiring — see Dev Notes Task 2
 
-- [ ] Task 3: Add Coil 3.x for image display (AC: 7, 8)
-  - [ ] Add `coil` version `"3.1.0"` to `[versions]` in `gradle/libs.versions.toml`
-  - [ ] Add `coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }` to `[libraries]`
-  - [ ] Add `implementation(libs.coil.compose)` to `commonMain.dependencies` in `shared/build.gradle.kts`
-  - [ ] Run `./gradlew :shared:compileKotlinIosSimulatorArm64` to confirm resolution
-  - [ ] See Dev Notes Task 3 for version compatibility notes
+- [x] Task 3: Add Coil 3.x for image display (AC: 7, 8)
+  - [x] Add `coil` version `"3.1.0"` to `[versions]` in `gradle/libs.versions.toml`
+  - [x] Add `coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }` to `[libraries]`
+  - [x] Add `implementation(libs.coil.compose)` to `commonMain.dependencies` in `shared/build.gradle.kts`
+  - [x] Run `./gradlew :shared:compileKotlinIosSimulatorArm64` to confirm resolution
+  - [x] See Dev Notes Task 3 for version compatibility notes
 
-- [ ] Task 4: Create `rememberImagePickerActions` expect/actual Composable (AC: 1–6)
-  - [ ] Create `shared/src/commonMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.kt` — expect
-  - [ ] Create `shared/src/androidMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.android.kt` — actual
-  - [ ] Create `shared/src/iosMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.ios.kt` — actual
-  - [ ] See Dev Notes Task 4 for complete code
+- [x] Task 4: Create `rememberImagePickerActions` expect/actual Composable (AC: 1–6)
+  - [x] Create `shared/src/commonMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.kt` — expect
+  - [x] Create `shared/src/androidMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.android.kt` — actual
+  - [x] Create `shared/src/iosMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.ios.kt` — actual
+  - [x] See Dev Notes Task 4 for complete code
 
-- [ ] Task 5: Add permissions declarations (AC: 2–6)
-  - [ ] Android: add `CAMERA` and `READ_MEDIA_IMAGES` / `READ_EXTERNAL_STORAGE` to `androidApp/src/main/AndroidManifest.xml` — see Dev Notes Task 5
-  - [ ] Android: add `FileProvider` to `AndroidManifest.xml` and `res/xml/file_paths.xml` for camera URI — see Dev Notes Task 5
-  - [ ] iOS: add `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to `iosApp/iosApp/Info.plist` — see Dev Notes Task 5
+- [x] Task 5: Add permissions declarations (AC: 2–6)
+  - [x] Android: add `CAMERA` and `READ_MEDIA_IMAGES` / `READ_EXTERNAL_STORAGE` to `androidApp/src/main/AndroidManifest.xml` — see Dev Notes Task 5
+  - [x] Android: add `FileProvider` to `AndroidManifest.xml` and `res/xml/file_paths.xml` for camera URI — see Dev Notes Task 5
+  - [x] iOS: add `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` to `iosApp/iosApp/Info.plist` — see Dev Notes Task 5
 
-- [ ] Task 6: Update `ItemEditSheet` to add photo row (AC: 1, 4, 5, 6, 7, 8)
-  - [ ] Add `initialImagePath: String? = null` parameter
-  - [ ] Change `onSave` lambda signature to include `imagePath: String?` as 5th parameter
-  - [ ] Add `var selectedImagePath by remember { mutableStateOf(initialImagePath) }` state
-  - [ ] Add photo row section after the icon picker Column, before the `when` block — see Dev Notes Task 6
-  - [ ] Update Save button `onClick` to pass `selectedImagePath`
-  - [ ] Run `./gradlew :shared:compileKotlinIosSimulatorArm64` — BUILD SUCCESSFUL
+- [x] Task 6: Update `ItemEditSheet` to add photo row (AC: 1, 4, 5, 6, 7, 8)
+  - [x] Add `initialImagePath: String? = null` parameter
+  - [x] Change `onSave` lambda signature to include `imagePath: String?` as 5th parameter
+  - [x] Add `var selectedImagePath by remember { mutableStateOf(initialImagePath) }` state
+  - [x] Add photo row section after the icon picker Column, before the `when` block — see Dev Notes Task 6
+  - [x] Update Save button `onClick` to pass `selectedImagePath`
+  - [x] Run `./gradlew :shared:compileKotlinIosSimulatorArm64` — BUILD SUCCESSFUL
 
-- [ ] Task 7: Update `ItemRow` to render photo (AC: 7)
-  - [ ] When `item.imagePath != null`: render Coil `AsyncImage` at 24dp inside the thumbnail box
-  - [ ] Photo takes priority over icon: `if (imagePath != null) AsyncImage(...) else if (iconId != null) ItemIconContent(...)`
-  - [ ] `contentDescription`: `"${item.name} photo"` when imagePath set, else existing logic
-  - [ ] See Dev Notes Task 7
+- [x] Task 7: Update `ItemRow` to render photo (AC: 7)
+  - [x] When `item.imagePath != null`: render Coil `AsyncImage` at 24dp inside the thumbnail box
+  - [x] Photo takes priority over icon: `if (imagePath != null) AsyncImage(...) else if (iconId != null) ItemIconContent(...)`
+  - [x] `contentDescription`: `"${item.name} photo"` when imagePath set, else existing logic
+  - [x] See Dev Notes Task 7
 
-- [ ] Task 8: Fix `ItemsViewModel.editItem` to pass `imagePath` directly (deferred-work fix)
-  - [ ] Add `imagePath: String?` parameter to `editItem`
-  - [ ] Pass it directly to `repository.updateItem(imagePath = imagePath, ...)` instead of reading from stale `uiState`
-  - [ ] Remove the `// still read from uiState` comment
-  - [ ] See Dev Notes Task 8
+- [x] Task 8: Fix `ItemsViewModel.editItem` to pass `imagePath` directly (deferred-work fix)
+  - [x] Add `imagePath: String?` parameter to `editItem`
+  - [x] Pass it directly to `repository.updateItem(imagePath = imagePath, ...)` instead of reading from stale `uiState`
+  - [x] Remove the `// still read from uiState` comment
+  - [x] See Dev Notes Task 8
 
-- [ ] Task 9: Update `ItemRepository.addItem` to accept `imagePath` (AC: 2, 3)
-  - [ ] Change signature: `suspend fun addItem(name: String, weekdayTime: String, weekendTime: String?, iconId: String? = null, imagePath: String? = null)`
-  - [ ] Pass `imagePath` to `insertItem` instead of hardcoded `null`
-  - [ ] Existing tests compile unchanged (default `= null` keeps them valid)
+- [x] Task 9: Update `ItemRepository.addItem` to accept `imagePath` (AC: 2, 3)
+  - [x] Change signature: `suspend fun addItem(name: String, weekdayTime: String, weekendTime: String?, iconId: String? = null, imagePath: String? = null)`
+  - [x] Pass `imagePath` to `insertItem` instead of hardcoded `null`
+  - [x] Existing tests compile unchanged (default `= null` keeps them valid)
 
-- [ ] Task 10: Update `ItemsScreen` to wire `imagePath` through `onSave` (AC: 7)
-  - [ ] Add `initialImagePath = item.imagePath` to edit sheet invocation
-  - [ ] Update both `onSave` lambdas to 5-parameter form forwarding `imagePath`
-  - [ ] See Dev Notes Task 10
+- [x] Task 10: Update `ItemsScreen` to wire `imagePath` through `onSave` (AC: 7)
+  - [x] Add `initialImagePath = item.imagePath` to edit sheet invocation
+  - [x] Update both `onSave` lambdas to 5-parameter form forwarding `imagePath`
+  - [x] See Dev Notes Task 10
 
-- [ ] Task 11: Add repository and storage tests (AC: 2, 3)
-  - [ ] `addItem_withImagePath_storesImagePath` — pass non-null imagePath, verify stored
-  - [ ] `addItem_withNullImagePath_storesNull` — verify default null behaviour unchanged
-  - [ ] Run `./gradlew :shared:testDebugUnitTest` — all tests pass
-  - [ ] See Dev Notes Task 11
+- [x] Task 11: Add repository and storage tests (AC: 2, 3)
+  - [x] `addItem_withImagePath_storesImagePath` — pass non-null imagePath, verify stored
+  - [x] `addItem_withNullImagePath_storesNull` — verify default null behaviour unchanged
+  - [x] Run `./gradlew :shared:testDebugUnitTest` — all tests pass
+  - [x] See Dev Notes Task 11
 
-- [ ] Task 12: Final build verification (AC: all)
-  - [ ] `./gradlew :shared:testDebugUnitTest` — BUILD SUCCESSFUL
-  - [ ] `./gradlew :shared:assembleDebug` — BUILD SUCCESSFUL
-  - [ ] `./gradlew :androidApp:assembleDebug` — BUILD SUCCESSFUL
-  - [ ] `./gradlew :shared:compileKotlinIosSimulatorArm64` — BUILD SUCCESSFUL
+- [x] Task 12: Final build verification (AC: all)
+  - [x] `./gradlew :shared:testDebugUnitTest` — BUILD SUCCESSFUL
+  - [x] `./gradlew :shared:assembleDebug` — BUILD SUCCESSFUL
+  - [x] `./gradlew :androidApp:assembleDebug` — BUILD SUCCESSFUL
+  - [x] `./gradlew :shared:compileKotlinIosSimulatorArm64` — BUILD SUCCESSFUL
+
+### Review Findings
+
+- [x] [Review][Patch] `copyUriToFile` silent I/O failure — corrupt/empty path stored and delivered to Coil [ImagePickerActions.android.kt]
+- [x] [Review][Patch] `launchCamera` FileProvider crash — parent directory not pre-created before constructing URI [ImagePickerActions.android.kt]
+- [x] [Review][Patch] Android photo section hidden on first launch — `cameraGranted`/`galleryGranted` both false before any permission request, AC4/AC5 violated [ImagePickerActions.android.kt]
+- [x] [Review][Patch] iOS permission callbacks mutate Compose state off main thread — undefined behavior, potential rendering crashes [ImagePickerActions.ios.kt]
+- [x] [Review][Patch] Android: picker not auto-opened after permission granted — user must tap twice, AC2/AC3 violated [ImagePickerActions.android.kt]
+- [x] [Review][Patch] iOS: picker not auto-opened after permission granted — user must tap twice, AC2/AC3 violated [ImagePickerActions.ios.kt]
+- [x] [Review][Patch] `copyUriToFile` runs blocking file I/O on main thread — ANR risk for large photos [ImagePickerActions.android.kt]
+- [x] [Review][Patch] iOS `cameraPermissionAllowed()` returns `true` for NotDetermined — camera button shown before permission granted — dismissed: by design, `launchCamera` checks `cameraPermissionGranted()` before presenting; button visibility is correct [ImagePickerActions.ios.kt]
+- [x] [Review][Patch] iOS `galleryPermissionAllowed()` returns `true` for NotDetermined — gallery button shown before permission granted — dismissed: same as above [ImagePickerActions.ios.kt]
+- [x] [Review][Patch] iOS `retainedDelegate` overwritten on rapid double-tap — first picker's result callback lost [ImagePickerActions.ios.kt]
+- [x] [Review][Patch] iOS picker silently dropped if rootVC already presenting another controller [ImagePickerActions.ios.kt]
+- [x] [Review][Patch] `AppImageStorage.ios.kt` `createDirectoryAtPath` error ignored — subsequent file writes fail silently [AppImageStorage.ios.kt]
+- [x] [Review][Patch] `AppImageStorage.android.kt` `mkdirs()` return value unchecked — path returned for non-existent directory [AppImageStorage.android.kt]
+- [x] [Review][Patch] `ItemRow` shows blank when image file deleted from disk — no fallback to icon or placeholder [ItemRow.kt]
+- [x] [Review][Patch] Android `cameraImagePath` race condition on rapid double-tap — wrong path returned to first result callback [ImagePickerActions.android.kt]
+- [x] [Review][Defer] No image file cleanup on item delete or photo replace — deferred, out of scope for this story
+- [x] [Review][Defer] `AppImageStorage` uses `Any?` context type — deferred, by-design pattern mirroring `DatabaseDriverFactory`
+- [x] [Review][Defer] Coil image size bounding and memory/disk cache policy not configured — deferred, future optimization
+- [x] [Review][Defer] `UIImagePickerController` deprecated (iOS 14+) — deferred, known; future upgrade to `PHPickerViewController`
+- [x] [Review][Defer] `ItemRow` empty thumbnail when both `imagePath` and `iconId` are null — deferred, pre-existing behavior unchanged by this story
+- [x] [Review][Defer] iOS `UIApplication.sharedApplication.keyWindow` deprecated (iOS 15+) — deferred, low impact, single-scene app
+- [x] [Review][Defer] Clearing existing photo via `null` `imagePath` in `updateItem` — deferred, pre-existing function, no evidence of bug
 
 ---
 
@@ -916,8 +941,57 @@ _bmad-output/implementation-artifacts/sprint-status.yaml                        
 
 ### Agent Model Used
 
+claude-sonnet-4-6
+
 ### Debug Log References
+
+- **T3**: Added `implementation(libs.androidx.activity.compose)` to `shared/build.gradle.kts` androidMain — required for `rememberLauncherForActivityResult` in `ImagePickerActions.android.kt`; not in original androidMain deps.
+- **T4 iOS round 1**: `UIImagePickerControllerSourceTypeCamera/PhotoLibrary` were unresolved as top-level imports. In K/N (Kotlin 2.3.20), these are accessed as `UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera` (companion-style on the type class). `NSData.writeToFile` was also unresolved — replaced with `NSFileManager.defaultManager.createFileAtPath`.
+- **T4 iOS round 2**: `AVCaptureDevice.authorizationStatusForMediaType` was unresolved as a direct class method call. In K/N, it must be imported as a top-level extension function: `import platform.AVFoundation.authorizationStatusForMediaType`, same pattern as the working `requestAccessForMediaType`.
+- **T2**: `AppImageStorage` registered in platform-specific modules (`AndroidModule`, `IosModule`) following the `DatabaseDriverFactory` pattern, NOT in `SharedModule`. Story notes were ambiguous but the existing Koin pattern requires `androidContext()` which is only available in androidModule.
 
 ### Completion Notes List
 
+- ✅ `AppImageStorage` expect/actual created — Android uses `context.filesDir/images/`, iOS uses `NSApplicationSupportDirectory/images/`
+- ✅ Koin DI wiring: `AppImageStorage(androidContext())` in `AndroidModule`, `AppImageStorage()` in `IosModule`
+- ✅ Coil 3.1.0 added to `commonMain` dependencies; `coil3.compose.AsyncImage` used in `ItemRow` and `ItemEditSheet`
+- ✅ `rememberImagePickerActions` expect/actual: Android uses `ActivityResultContracts` + `FileProvider`; iOS uses `UIImagePickerController` + delegate retained via `remember { mutableStateOf<NSObject?>(null) }`
+- ✅ Permissions: Android `CAMERA` + `READ_MEDIA_IMAGES/READ_EXTERNAL_STORAGE` + `FileProvider` in Manifest; `file_paths.xml` created; iOS `NSCameraUsageDescription` + `NSPhotoLibraryUsageDescription` in Info.plist
+- ✅ `ItemEditSheet` updated: `initialImagePath` param, 5-param `onSave`, `selectedImagePath` state, photo row with Camera/Gallery `OutlinedButton`s (shown when permission allowed), `koinInject()` for `AppImageStorage`
+- ✅ `ItemRow` updated: `AsyncImage` shown when `imagePath != null`, takes priority over icon; contentDescription updated for photo vs icon vs empty
+- ✅ `ItemsViewModel.editItem` fixed: stale `uiState` lookup removed; `imagePath` now passed as direct parameter; `addItem` updated to accept and forward `imagePath`
+- ✅ `ItemRepository.addItem` updated: `imagePath: String? = null` param with default; passes to `insertItem` instead of hardcoded null; all existing tests remain valid
+- ✅ `ItemsScreen` wired: both add and edit sheet `onSave` lambdas use 5-parameter form; edit sheet passes `initialImagePath = item.imagePath`
+- ✅ 2 new repository tests added: `addItem_withImagePath_storesImagePath` and `addItem_withNullImagePath_storesNull`
+- ✅ All 4 build targets green: `testDebugUnitTest`, `assembleDebug`, `:androidApp:assembleDebug`, `compileKotlinIosSimulatorArm64`
+- ✅ Deferred work item (imagePath stale-state race from code review of 2-4 and 2-5) resolved by Task 8
+
 ### File List
+
+**New files:**
+- `shared/src/commonMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.kt`
+- `shared/src/androidMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.android.kt`
+- `shared/src/iosMain/kotlin/com/sonja/tracker/data/db/AppImageStorage.ios.kt`
+- `shared/src/commonMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.kt`
+- `shared/src/androidMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.android.kt`
+- `shared/src/iosMain/kotlin/com/sonja/tracker/ui/components/ImagePickerActions.ios.kt`
+- `androidApp/src/main/res/xml/file_paths.xml`
+
+**Modified files:**
+- `gradle/libs.versions.toml`
+- `shared/build.gradle.kts`
+- `androidApp/src/main/AndroidManifest.xml`
+- `iosApp/iosApp/Info.plist`
+- `shared/src/androidMain/kotlin/com/sonja/tracker/di/AndroidModule.kt`
+- `shared/src/iosMain/kotlin/com/sonja/tracker/di/IosModule.kt`
+- `shared/src/commonMain/kotlin/com/sonja/tracker/data/repository/ItemRepository.kt`
+- `shared/src/commonMain/kotlin/com/sonja/tracker/ui/items/ItemsViewModel.kt`
+- `shared/src/commonMain/kotlin/com/sonja/tracker/ui/items/ItemEditSheet.kt`
+- `shared/src/commonMain/kotlin/com/sonja/tracker/ui/items/ItemsScreen.kt`
+- `shared/src/commonMain/kotlin/com/sonja/tracker/ui/components/ItemRow.kt`
+- `shared/src/commonTest/kotlin/com/sonja/tracker/data/repository/ItemRepositoryTest.kt`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+### Change Log
+
+- 2026-04-16: Implemented Story 2.6 — Item Photos (Camera & Gallery). Added `AppImageStorage` expect/actual, `rememberImagePickerActions` expect/actual, Coil 3.1.0 for image display, photo row in `ItemEditSheet`, photo-priority rendering in `ItemRow`, wired `imagePath` through full stack (ViewModel → Repository → DB). Fixed deferred stale-state bug in `editItem`. All builds green.

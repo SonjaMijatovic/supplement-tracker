@@ -46,6 +46,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.compose.material.icons.core)
             implementation(libs.compose.material.icons.extended)
+            implementation(libs.coil.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -55,6 +56,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.sqldelight.android.driver)
             implementation(libs.koin.android)
+            implementation(libs.androidx.activity.compose)
         }
         iosArm64Main.dependencies {
             implementation(libs.sqldelight.native.driver)

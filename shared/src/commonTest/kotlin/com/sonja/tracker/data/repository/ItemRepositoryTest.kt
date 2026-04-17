@@ -119,6 +119,29 @@ class ItemRepositoryTest {
     }
 
     @Test
+    fun addItem_withImagePath_storesImagePath() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin D3", "08:00", null, imagePath = "/some/path/img.jpg")
+
+        val items = repo.observeItems().first()
+        assertEquals(1, items.size)
+        assertEquals("/some/path/img.jpg", items[0].imagePath)
+    }
+
+    @Test
+    fun addItem_withNullImagePath_storesNull() = runTest {
+        val db = TrackerDatabase(createDriver())
+        val repo = ItemRepository(db)
+
+        repo.addItem("Vitamin C", "09:00", null)  // default imagePath = null
+
+        val items = repo.observeItems().first()
+        assertNull(items[0].imagePath)
+    }
+
+    @Test
     fun observeItems_emitsEmptyAfterDelete() = runTest {
         val db = TrackerDatabase(createDriver())
         val repo = ItemRepository(db)

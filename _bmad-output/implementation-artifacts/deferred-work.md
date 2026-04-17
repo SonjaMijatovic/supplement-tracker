@@ -1,5 +1,15 @@
 # Deferred Work
 
+## Deferred from: code review of 2-6-item-photos-camera-and-gallery (2026-04-17)
+
+- No image file cleanup on item delete or photo replace — `AppImageStorage` files are never deleted; each "replace photo" orphans the old file. Fix in a future story when a storage management pass is done.
+- `AppImageStorage` uses `Any?` context type — by-design pattern chosen to mirror `DatabaseDriverFactory`; runtime cast is safe given Koin DI wiring, but compile-time safety is lost. Refactor when KMP adds platform-typed expect parameters.
+- Coil image size bounding and memory/disk cache policy not configured — `AsyncImage(model = item.imagePath)` loads full-res images in list rows; no sampling or cache limit. Configure via `ImageRequest` when profiling shows memory pressure.
+- `UIImagePickerController` deprecated (iOS 14+) — known suppressed with `@Suppress("DEPRECATION")`; upgrade to `PHPickerViewController` in a future story targeting iOS 14+ only.
+- `ItemRow` empty thumbnail when both `imagePath` and `iconId` are null — pre-existing behavior from Story 2.1; the `when` block has no `else` branch. Add a generic placeholder icon when a UX polish pass is done.
+- iOS `UIApplication.sharedApplication.keyWindow` deprecated (iOS 15+) — single-scene app; not currently broken, but will need migration to `UIApplication.sharedApplication.connectedScenes` for multi-window support.
+- Clearing existing photo via `null` `imagePath` in `updateItem` — no current evidence of breakage; verify explicitly when a "remove photo" affordance is added to `ItemEditSheet`.
+
 ## Deferred from: code review of 2-5-icon-picker (2026-04-16)
 
 - `ItemRow` contentDescription is hardcoded English — Story 2.5 added `"No icon"` / `"[name] icon"`; project-wide localisation deferred.

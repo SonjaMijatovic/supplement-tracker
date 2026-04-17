@@ -12,22 +12,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class ItemsViewModel(private val repository: ItemRepository) : ViewModel() {
-    fun addItem(name: String, weekdayTime: String, weekendTime: String?, iconId: String? = null) {
+    fun addItem(name: String, weekdayTime: String, weekendTime: String?, iconId: String? = null, imagePath: String? = null) {
         viewModelScope.launch {
-            repository.addItem(name, weekdayTime, weekendTime, iconId)
+            repository.addItem(name, weekdayTime, weekendTime, iconId, imagePath)
         }
     }
 
-    fun editItem(id: Long, name: String, weekdayTime: String, weekendTime: String?, iconId: String?) {
+    fun editItem(id: Long, name: String, weekdayTime: String, weekendTime: String?, iconId: String?, imagePath: String?) {
         viewModelScope.launch {
-            val current = (uiState.value as? ItemsUiState.Success)?.items?.find { it.id == id }
             repository.updateItem(
                 id = id,
                 name = name,
                 weekdayTime = weekdayTime,
                 weekendTime = weekendTime,
-                imagePath = current?.imagePath,  // still read from uiState (always null until Story 2.6)
-                iconId = iconId                  // now passed directly — fixes stale-state risk
+                imagePath = imagePath,   // now passed directly — fixes stale-state risk
+                iconId = iconId
             )
             // TODO Epic 4: NotificationScheduler.rescheduleForSlot(weekdayTime, weekendTime)
         }

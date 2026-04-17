@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -16,11 +17,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.sonja.tracker.domain.model.Item
 
 @Composable
@@ -52,14 +59,41 @@ fun ItemRow(
                 .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .semantics {
-                    contentDescription = if (item.iconId != null) "${item.name} icon" else "No icon"
+                    contentDescription = when {
+                        item.imagePath != null -> "${item.name} photo"
+                        item.iconId != null -> "${item.name} icon"
+                        else -> "No icon"
+                    }
                 },
             contentAlignment = Alignment.Center
         ) {
-            if (item.iconId != null) {
-                com.sonja.tracker.ui.items.ItemIconContent(iconId = item.iconId, modifier = Modifier.size(24.dp))
+            when {
+                item.imagePath != null -> {
+                    // Fall back to icon if the image file is missing or corrupt
+                    var imageLoadFailed by remember(item.imagePath) { mutableStateOf(false) }
+                    if (imageLoadFailed && item.iconId != null) {
+                        com.sonja.tracker.ui.items.ItemIconContent(
+                            iconId = item.iconId,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        AsyncImage(
+                            model = item.imagePath,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop,
+                            onError = { imageLoadFailed = true }
+                        )
+                    }
+                }
+                item.iconId != null -> com.sonja.tracker.ui.items.ItemIconContent(
+                    iconId = item.iconId,
+                    modifier = Modifier.size(24.dp)
+                )
+                // else: empty primaryContainer box (placeholder)
             }
-            // item.imagePath rendering added in Story 2.6
         }
         Spacer(Modifier.width(12.dp))
         Text(

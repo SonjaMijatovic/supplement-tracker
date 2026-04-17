@@ -5,9 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,6 +18,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.Photo
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,10 +30,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -47,19 +54,25 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.sonja.tracker.data.db.AppImageStorage
+import com.sonja.tracker.ui.components.ImagePickerActions
 import com.sonja.tracker.ui.components.PlatformTimePickerDialog
 import com.sonja.tracker.ui.components.rememberBottomSafeAreaPadding
+import com.sonja.tracker.ui.components.rememberImagePickerActions
 import com.sonja.tracker.ui.navigation.LocalHideNavBar
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemEditSheet(
-    onSave: (name: String, weekdayTime: String, weekendTime: String?, iconId: String?) -> Unit,
+    onSave: (name: String, weekdayTime: String, weekendTime: String?, iconId: String?, imagePath: String?) -> Unit,
     onDismiss: () -> Unit,
     initialName: String = "",
     initialWeekdayTime: String = "08:00",
     initialWeekendTime: String? = null,
     initialIconId: String? = null,
+    initialImagePath: String? = null,
     onDelete: (() -> Unit)? = null
 ) {
     var name by remember { mutableStateOf(initialName) }
@@ -71,6 +84,12 @@ fun ItemEditSheet(
     var showWeekendTimePicker by remember { mutableStateOf(false) }
     var selectedIconId by remember { mutableStateOf(initialIconId) }
     var iconPickerVisible by remember { mutableStateOf(false) }
+    var selectedImagePath by remember { mutableStateOf(initialImagePath) }
+    val appImageStorage: AppImageStorage = koinInject()
+    val imagePicker = rememberImagePickerActions(
+        appImageStorage = appImageStorage,
+        onResult = { path -> if (path != null) selectedImagePath = path }
+    )
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -155,6 +174,66 @@ fun ItemEditSheet(
                 }
             }
 
+            // Photo row — shown only when at least one permission is available
+            if (imagePicker.cameraGranted || imagePicker.galleryGranted) {
+                Column {
+                    ListItem(
+                        headlineContent = {
+                            Text(if (selectedImagePath != null) "Photo set" else "Add photo")
+                        },
+                        leadingContent = {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val path = selectedImagePath
+                                if (path != null) {
+                                    AsyncImage(
+                                        model = path,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }
+                        },
+                        trailingContent = null
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (imagePicker.cameraGranted) {
+                            OutlinedButton(
+                                onClick = imagePicker.launchCamera,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Outlined.PhotoCamera, contentDescription = null)
+                                Spacer(Modifier.width(4.dp))
+                                Text("Camera")
+                            }
+                        }
+                        if (imagePicker.galleryGranted) {
+                            OutlinedButton(
+                                onClick = imagePicker.launchGallery,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(Icons.Outlined.Photo, contentDescription = null)
+                                Spacer(Modifier.width(4.dp))
+                                Text("Gallery")
+                            }
+                        }
+                    }
+                }
+            }
+
             // Inline pickers replace ALL list rows so the sheet never overflows on iOS.
             // No Dialog wrapper — avoids iOS UIWindow/ModalBottomSheet gesture conflict.
             when {
@@ -229,7 +308,7 @@ fun ItemEditSheet(
 
             Button(
                 onClick = {
-                    onSave(name.trim(), weekdayTime, if (weekendToggleExpanded) weekendTime else null, selectedIconId)
+                    onSave(name.trim(), weekdayTime, if (weekendToggleExpanded) weekendTime else null, selectedIconId, selectedImagePath)
                     onDismiss()
                 },
                 // Disabled while a time picker is open so in-progress selections aren't silently

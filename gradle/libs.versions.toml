@@ -9,6 +9,7 @@ sqldelight = "2.2.1"
 koin = "3.5.0"
 koin-compose = "1.1.5"
 kotlinx-datetime = "0.7.1"
+coil = "3.1.0"
 coroutines = "1.10.2"
 
 # Android SDK
@@ -69,6 +70,9 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin-compose" }
 # koin-compose-viewmodel does not exist in the 1.x track; koinViewModel() is in koin-compose itself
 
+
+# Coil
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 
 # kotlinx
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }

@@ -102,8 +102,8 @@ fun ItemsScreen(modifier: Modifier = Modifier) {
 
     if (showAddSheet) {
         ItemEditSheet(
-            onSave = { name, weekdayTime, weekendTime, iconId ->
-                viewModel.addItem(name, weekdayTime, weekendTime, iconId)
+            onSave = { name, weekdayTime, weekendTime, iconId, imagePath ->
+                viewModel.addItem(name, weekdayTime, weekendTime, iconId, imagePath)
             },
             onDismiss = { showAddSheet = false }
         )
@@ -115,8 +115,9 @@ fun ItemsScreen(modifier: Modifier = Modifier) {
             initialWeekdayTime = item.reminderWeekdayTime ?: "08:00",
             initialWeekendTime = item.reminderWeekendTime,
             initialIconId = item.iconId,
-            onSave = { name, weekdayTime, weekendTime, iconId ->
-                viewModel.editItem(item.id, name, weekdayTime, weekendTime, iconId)
+            initialImagePath = item.imagePath,
+            onSave = { name, weekdayTime, weekendTime, iconId, imagePath ->
+                viewModel.editItem(item.id, name, weekdayTime, weekendTime, iconId, imagePath)
             },
             onDismiss = { selectedItem = null },
             onDelete = { viewModel.deleteItem(item.id) }
