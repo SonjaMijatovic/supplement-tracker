@@ -134,6 +134,11 @@ fun ItemRow(
                     iconId = item.iconId,
                     modifier = Modifier.size(24.dp)
                 )
+                else -> Text(
+                    text = item.name.take(1).uppercase(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
         }
         Spacer(Modifier.width(12.dp))
