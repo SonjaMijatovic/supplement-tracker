@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sonja.tracker.data.repository.ItemRepository
+import com.sonja.tracker.data.repository.LogRepository
 import com.sonja.tracker.ui.components.TimeGroupSection
 import org.koin.compose.koinInject
 
@@ -33,8 +34,9 @@ fun TodayScreen(
     modifier: Modifier = Modifier,
     onNavigateToItems: () -> Unit = {}
 ) {
-    val repository = koinInject<ItemRepository>()
-    val viewModel: TodayViewModel = viewModel { TodayViewModel(repository) }
+    val itemRepository = koinInject<ItemRepository>()
+    val logRepository = koinInject<LogRepository>()
+    val viewModel: TodayViewModel = viewModel { TodayViewModel(itemRepository, logRepository) }
     val uiState by viewModel.uiState.collectAsState()
 
     when (val state = uiState) {
@@ -61,7 +63,10 @@ fun TodayScreen(
             } else {
                 LazyColumn(modifier = modifier.fillMaxSize()) {
                     items(state.groups, key = { it.timeSlot }) { group ->
-                        TimeGroupSection(group = group)
+                        TimeGroupSection(
+                            group = group,
+                            onLogItem = { viewModel.logItem(it) }
+                        )
                     }
                 }
             }

@@ -16,6 +16,7 @@ import com.sonja.tracker.domain.model.TimeGroup
 @Composable
 fun TimeGroupSection(
     group: TimeGroup,
+    onLogItem: (itemId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -31,8 +32,8 @@ fun TimeGroupSection(
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.weight(1f)
             )
-            val pendingCount = group.items.size
-            // Story 3.1: always "X pending" — overdue/done states added in story 3.3
+            val pendingCount = group.items.size - group.loggedItemIds.size
+            // Story 3.2: badge reflects actual pending count; overdue/done states added in story 3.3
             Text(
                 text = "$pendingCount pending",
                 style = MaterialTheme.typography.labelMedium,
@@ -41,12 +42,14 @@ fun TimeGroupSection(
         }
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-        // Item rows — onClick is null in story 3.1; logging added in story 3.2
         group.items.forEach { item ->
+            val logged = item.id in group.loggedItemIds
             ItemRow(
                 item = item,
                 modifier = Modifier.padding(horizontal = 16.dp),
-                onClick = null
+                isLogRow = true,
+                isLogged = logged,
+                onClick = if (logged) null else { { onLogItem(item.id) } }
             )
         }
     }

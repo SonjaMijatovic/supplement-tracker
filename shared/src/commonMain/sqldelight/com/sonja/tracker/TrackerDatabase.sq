@@ -30,3 +30,13 @@ WHERE id = ?;
 
 deleteItemById:
 DELETE FROM items WHERE id = ?;
+
+insertLogEntry:
+INSERT OR IGNORE INTO log_entries (item_id, date, state, logged_at)
+VALUES (?, ?, ?, ?);
+
+selectAllLogEntries:
+SELECT item_id, date FROM log_entries;
+
+selectLoggedItemIdsForDate:
+SELECT item_id FROM log_entries WHERE date = ?;

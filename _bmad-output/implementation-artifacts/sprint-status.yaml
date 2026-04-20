@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-07
-last_updated: 2026-04-17 # story 3.1 done
+last_updated: 2026-04-20 # story 3.2 done
 project: Daily Supplement & Medication Tracker
 project_key: NOKEY
 tracking_system: file-system
@@ -63,7 +63,7 @@ development_status:
   # Epic 3: Daily Logging & Today Screen
   epic-3: in-progress
   3-1-today-screen-grouped-item-list: done
-  3-2-logging-an-item: backlog
+  3-2-logging-an-item: done
   3-3-timegroupsection-badge-and-overdue-state: backlog
   3-4-all-done-completion-state: backlog
   epic-3-retrospective: optional
