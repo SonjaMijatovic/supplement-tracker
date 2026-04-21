@@ -58,6 +58,7 @@ import coil3.compose.AsyncImage
 import com.sonja.tracker.data.db.AppImageStorage
 import com.sonja.tracker.ui.components.ImagePickerActions
 import com.sonja.tracker.ui.components.PlatformTimePickerDialog
+import com.sonja.tracker.ui.components.formatTimeSlot
 import com.sonja.tracker.ui.components.rememberBottomSafeAreaPadding
 import com.sonja.tracker.ui.components.rememberImagePickerActions
 import com.sonja.tracker.ui.navigation.LocalHideNavBar
@@ -258,7 +259,7 @@ fun ItemEditSheet(
                         headlineContent = { Text("Weekday reminder") },
                         trailingContent = {
                             Text(
-                                text = weekdayTime,
+                                text = formatTimeSlot(weekdayTime),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -291,7 +292,7 @@ fun ItemEditSheet(
                             headlineContent = { Text("Weekend reminder") },
                             trailingContent = {
                                 Text(
-                                    text = weekendTime ?: weekdayTime,
+                                    text = formatTimeSlot(weekendTime ?: weekdayTime),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.primary
                                 )

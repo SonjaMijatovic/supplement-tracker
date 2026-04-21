@@ -26,7 +26,7 @@ actual fun PlatformTimePickerDialog(
     val state = rememberTimePickerState(
         initialHour = parts.getOrNull(0)?.toIntOrNull() ?: 8,
         initialMinute = parts.getOrNull(1)?.toIntOrNull() ?: 0,
-        is24Hour = true
+        is24Hour = false
     )
     // Rendered inline inside the sheet — no Dialog wrapper to avoid UIWindow conflicts on iOS.
     Column(

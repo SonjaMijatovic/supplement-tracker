@@ -1,5 +1,19 @@
 # Deferred Work
 
+## Localisation
+
+**Current state (as of 2026-04-21):** English only, 12-hour time format throughout.
+- Time display (`formatTimeSlot` in `TimeFormatUtils.kt`) formats stored `HH:mm` values as 12h (e.g. "8:00 AM").
+- Android time picker (`PlatformTimePickerDialog.android.kt`) uses `is24Hour = false`.
+- iOS `UIDatePicker` respects device locale; no override applied.
+
+**Future work — add Serbian language + 24h format:**
+- Add Serbian (`sr`) string resources / translations.
+- Make time format locale-aware: `formatTimeSlot` should produce 24h output when locale is Serbian (or when a user preference is set).
+- Android: pass `is24Hour = true` to `rememberTimePickerState` for 24h locales.
+- iOS: `UIDatePicker` will switch automatically once the device locale is Serbian; no code change needed.
+- All hardcoded English UI strings (noted per-story below) will need extracting into a strings resource pipeline.
+
 ## Deferred from: code review of 3-1-today-screen-grouped-item-list (2026-04-17)
 
 - `formatTimeSlot` no hour-range validation — a malformed stored value like "25:00" would render as "13:00 PM"; app controls time storage via its own picker so unreachable in practice. Add validation when a time-input sanitisation pass is done.
